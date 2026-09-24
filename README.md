@@ -138,3 +138,6 @@ Para publicarla cuando toque:
 5. Con dominio propio, apunta el DNS a GitHub Pages y actívalo en **Settings → Pages**.
 
 La web no se indexa en buscadores (`noindex` y `robots.txt`), igual que cuando estaba dentro del panel.
+
+El paso a paso para publicarla con el dominio `noupadeliteniscampos.com` y abrirla a buscadores está en
+[docs/PLAN_SEO_Y_PUBLICACION.md](docs/PLAN_SEO_Y_PUBLICACION.md).
