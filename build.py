@@ -1,6 +1,8 @@
 """Genera la web estática en dist/ a partir de content/, templates/ y static/.
 
-Uso: python build.py [--out dist]
+Uso: python build.py [--out dist] [--staff-url URL]
+     python build.py --dev     genera y sirve la web en http://localhost:8000, con «Acceso Staff»
+                               apuntando al panel local (CamposClubManager en http://localhost/login)
 Cada idioma queda en su carpeta (/, /ca/, /en/) y todas las rutas son relativas, así que la web
 funciona igual en GitHub Pages (con o sin dominio propio) que abriendo dist/ desde un servidor local.
 Cualquier dato mal escrito en content/ hace fallar el build: mejor no publicar que publicar algo roto.
@@ -24,6 +26,9 @@ DEFAULT_LANGUAGE = 'es'
 LINK_KINDS = ('info', 'signup')
 # Versión de los assets en las URLs (?v=…): cambia en cada build y evita cachés viejas tras publicar.
 ASSET_VERSION = datetime.now().strftime('%Y%m%d%H%M')
+# Panel de reservas en desarrollo: docker-compose.local.yml de CamposClubManager lo sirve en el puerto 80.
+LOCAL_STAFF_URL = 'http://localhost/login'
+DEV_PORT = 8000
 
 
 class ContentError(ValueError):
@@ -198,8 +203,10 @@ def environment():
     return env
 
 
-def page_context(lang, on_date):
+def page_context(lang, on_date, staff_url=None):
     site = localize(load_data('site.json'), lang)
+    if staff_url is not None:
+        site['staff_url'] = staff_url
     for key in ('playtomic', 'whatsapp', 'instagram', 'maps', 'staff_url'):
         if not external_url(site.get(key, '')):
             site[key] = ''
@@ -218,7 +225,8 @@ def page_context(lang, on_date):
     }
 
 
-def build(out_dir, on_date=None):
+def build(out_dir, on_date=None, staff_url=None):
+    """staff_url sustituye al de site.json (p. ej. el panel local en desarrollo)."""
     out_dir = Path(out_dir)
     on_date = on_date or today()
     validate_announcements(load_data('announcements.json'))
@@ -230,7 +238,7 @@ def build(out_dir, on_date=None):
     for lang in LANGUAGES:
         page_dir = out_dir if lang == DEFAULT_LANGUAGE else out_dir / lang
         page_dir.mkdir(parents=True, exist_ok=True)
-        (page_dir / 'index.html').write_text(template.render(page_context(lang, on_date)), encoding='utf-8')
+        (page_dir / 'index.html').write_text(template.render(page_context(lang, on_date, staff_url)), encoding='utf-8')
     # La web sigue sin indexarse en buscadores, como hasta ahora (también lleva «noindex»).
     (out_dir / 'robots.txt').write_text('User-agent: *\nDisallow: /\n', encoding='utf-8')
     # GitHub Pages: sin procesado Jekyll, y con dominio propio si site.json tiene «domain».
@@ -241,10 +249,32 @@ def build(out_dir, on_date=None):
     return out_dir
 
 
+def serve(out_dir, port=DEV_PORT):
+    """Servidor local de desarrollo (solo en este equipo); Ctrl+C para pararlo."""
+    from functools import partial
+    from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+    handler = partial(SimpleHTTPRequestHandler, directory=str(out_dir))
+    with ThreadingHTTPServer(('127.0.0.1', port), handler) as server:
+        print(f'Web en http://localhost:{port}/ · Ctrl+C para parar', flush=True)
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--out', default=ROOT / 'dist', type=Path, help='carpeta de salida (por defecto dist/)')
+    parser.add_argument('--staff-url', help='enlace de «Acceso Staff»; sustituye al de site.json')
+    parser.add_argument('--dev', action='store_true',
+                        help=f'desarrollo local: «Acceso Staff» a {LOCAL_STAFF_URL} y servidor en el puerto {DEV_PORT}')
+    args = parser.parse_args()
+    staff_url = args.staff_url or (LOCAL_STAFF_URL if args.dev else None)
     try:
-        print(f'Web generada en {build(parser.parse_args().out)}')
+        print(f'Web generada en {build(args.out, staff_url=staff_url)}', flush=True)
     except ContentError as error:
         raise SystemExit(f'Error en content/: {error}')
+    if staff_url and not external_url(staff_url):
+        print(f'Aviso: «{staff_url}» no es un enlace http(s) válido; el pie se queda sin «Acceso Staff».')
+    if args.dev:
+        serve(args.out)

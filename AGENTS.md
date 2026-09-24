@@ -24,13 +24,15 @@ Web pública estática de **Nou Padel i Tenis Campos**, separada del panel de re
   fuentes propias en `static/fonts/` (OFL). La carta funciona sin JavaScript.
 - `scripts/generate_menu_pdf.py` genera el `static/documents/carta.pdf` versionado desde `menu.json`
   (solo castellano, necesita Chromium local).
+- «Acceso Staff» enlaza a `site.json` → `staff_url` (vacío = sin enlace). `build(staff_url=…)` /
+  `--staff-url` lo sustituyen; `--dev` usa `LOCAL_STAFF_URL` (el panel local de CamposClubManager).
 
 ## Comandos
 
 ```powershell
 .venv\Scripts\python build.py                                # genera dist/
 .venv\Scripts\python -m unittest discover -s tests -v        # tests (unittest, sin dependencias extra)
-.venv\Scripts\python -m http.server 8000 -d dist             # previsualizar
+.venv\Scripts\python build.py --dev                          # genera y sirve en :8000, Acceso Staff → http://localhost/login
 ```
 
 `dist/` no se versiona: lo genera y publica `.github/workflows/pages.yml` (push a `main`, cron nocturno

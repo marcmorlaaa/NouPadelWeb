@@ -114,6 +114,19 @@ class BuildTests(unittest.TestCase):
         self.assertNotIn('<iframe', html)
         self.assertNotIn('<form', html)
 
+    def test_staff_url_override_for_local_development(self):
+        site = {**load_data('site.json'), 'staff_url': 'https://gestion.example.com/login'}
+        self.overrides['site.json'] = site
+        original = build.load_data
+        with patch('build.load_data', side_effect=lambda name: self.overrides.get(name, original(name))):
+            build.build(self.out, on_date=TODAY, staff_url=build.LOCAL_STAFF_URL)
+        for page in ['index.html', 'ca/index.html', 'en/index.html']:
+            html = (self.out / page).read_text(encoding='utf-8')
+            self.assertIn(f'<a class="footer-staff" href="{build.LOCAL_STAFF_URL}">', html)
+            self.assertNotIn('gestion.example.com', html)
+        # Sin sustituto se usa el de site.json.
+        self.assertIn('href="https://gestion.example.com/login"', self.render())
+
     def test_schedule_and_rates(self):
         site = load_data('site.json')
         site.update(schedule=[{'days': 'Lunes a viernes', 'hours': '08:00 – 23:30'}],
