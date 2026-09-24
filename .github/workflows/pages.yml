@@ -1,0 +1,45 @@
+name: Publicar web
+
+on:
+  push:
+    branches: [main]
+  # Cada noche se regenera para retirar los anuncios caducados (23:05 UTC = 00:05/01:05 en Mallorca).
+  schedule:
+    - cron: '5 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+      - name: Generar dist/
+        run: python build.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

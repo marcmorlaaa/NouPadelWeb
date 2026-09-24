@@ -1,0 +1,126 @@
+[
+  {
+    "id": "bocadillos",
+    "name": {"es": "Bocadillos", "ca": "Entrepans", "en": "Filled rolls"},
+    "note": {"es": "Ingredientes extra +0,50 €", "ca": "Ingredients extra +0,50 €", "en": "Extra fillings +0,50 €"},
+    "half": true,
+    "items": [
+      {"name": {"es": "Jamón york", "ca": "Pernil dolç", "en": "Cooked ham"}, "price": "4,30", "half": "3,00"},
+      {"name": {"es": "Queso mahonés", "ca": "Formatge de Maó", "en": "Mahón cheese"}, "price": "4,30", "half": "3,00"},
+      {"name": "Camaiot", "price": "4,50", "half": "3,20"},
+      {"name": {"es": "Sobrasada", "ca": "Sobrassada", "en": "Sobrasada"}, "price": "4,50", "half": "3,20"},
+      {"name": {"es": "Jamón serrano", "ca": "Pernil serrà", "en": "Serrano ham"}, "price": "4,30", "half": "3,00"},
+      {"name": {"es": "Anchoas", "ca": "Anxoves", "en": "Anchovies"}, "price": "5,00", "half": "3,70"},
+      {"name": {"es": "Atún", "ca": "Tonyina", "en": "Tuna"}, "price": "5,00", "half": "3,70"},
+      {"name": "Bacon", "price": "4,50", "half": "3,20"},
+      {"name": {"es": "Tortilla", "ca": "Truita", "en": "Spanish omelette"}, "price": "4,50", "half": "3,20"},
+      {"name": {"es": "Pepito de lomo o pollo", "ca": "Pepito de llom o pollastre", "en": "Pork loin or chicken steak roll"}, "price": "5,00"},
+      {"name": {"es": "Pepito completo", "ca": "Pepito complet", "en": "Loaded steak roll"}, "price": "6,50"},
+      {"name": {"es": "Sándwich vegetal", "ca": "Sandvitx vegetal", "en": "Veggie sandwich"}, "price": "6,00"},
+      {"name": {"es": "Sándwich mixto", "ca": "Sandvitx mixt", "en": "Ham and cheese toastie"}, "price": "3,50"},
+      {"name": {"es": "Sándwich de pollo", "ca": "Sandvitx de pollastre", "en": "Chicken sandwich"}, "price": "6,00"},
+      {"name": {"es": "Tostada con tomate", "ca": "Torrada amb tomàtiga", "en": "Toast with tomato"}, "price": "2,50"}
+    ]
+  },
+  {
+    "id": "entrantes",
+    "name": {"es": "Entrantes", "ca": "Entrants", "en": "Starters"},
+    "half": true,
+    "items": [
+      {"name": {"es": "Ración de croquetas", "ca": "Ració de croquetes", "en": "Croquettes"}, "price": "10,00", "half": "5,00"},
+      {"name": {"es": "Tabla de jamón ibérico", "ca": "Taula de pernil ibèric", "en": "Iberian ham board"}, "price": "15,00", "half": "8,00"},
+      {"name": {"es": "Tabla de queso", "ca": "Taula de formatge", "en": "Cheese board"}, "price": "12,00", "half": "7,00"}
+    ]
+  },
+  {
+    "id": "pa-amb-oli",
+    "name": {"es": "Pa amb olis", "ca": "Pa amb olis", "en": "Pa amb oli"},
+    "items": [
+      {"name": {"es": "De secreto", "ca": "De secret", "en": "Pork secreto"}, "price": "14,00"},
+      {"name": {"es": "De lomo", "ca": "De llom", "en": "Pork loin"}, "price": "10,00"},
+      {"name": {"es": "De jamón ibérico y queso mahonés", "ca": "De pernil ibèric i formatge de Maó", "en": "Iberian ham and Mahón cheese"}, "price": "10,00"}
+    ]
+  },
+  {
+    "id": "ensaladas",
+    "name": {"es": "Ensaladas", "ca": "Amanides", "en": "Salads"},
+    "items": [
+      {
+        "name": {"es": "Ensalada de la casa", "ca": "Amanida de la casa", "en": "House salad"},
+        "description": {
+          "es": "Lechuga, pollo, frutos secos, manzana y queso.",
+          "ca": "Enciam, pollastre, fruits secs, poma i formatge.",
+          "en": "Lettuce, chicken, nuts, apple and cheese."
+        },
+        "price": "10,00"
+      },
+      {
+        "name": {"es": "Ensalada de atún", "ca": "Amanida de tonyina", "en": "Tuna salad"},
+        "description": {"es": "Lechuga, atún, cebolla y tomate.", "ca": "Enciam, tonyina, ceba i tomàtiga.", "en": "Lettuce, tuna, onion and tomato."},
+        "price": "10,00"
+      },
+      {
+        "name": {"es": "Ensalada Caprese", "ca": "Amanida Caprese", "en": "Caprese salad"},
+        "description": {"es": "Tomate y mozzarella.", "ca": "Tomàtiga i mozzarella.", "en": "Tomato and mozzarella."},
+        "price": "10,00"
+      }
+    ]
+  },
+  {
+    "id": "hamburguesas",
+    "name": {"es": "Hamburguesas", "ca": "Hamburgueses", "en": "Burgers"},
+    "note": {"es": "Extra de patata de boniato +1,50 €", "ca": "Extra de moniato +1,50 €", "en": "Sweet potato fries +1,50 €"},
+    "items": [
+      {"name": {"es": "Con queso", "ca": "Amb formatge", "en": "Cheeseburger"}, "price": "8,00"},
+      {"name": "Premium", "description": {"es": "Bacon y queso.", "ca": "Bacon i formatge.", "en": "Bacon and cheese."}, "price": "12,00"},
+      {"name": {"es": "De pollo", "ca": "De pollastre", "en": "Chicken burger"}, "price": "8,00"},
+      {"name": {"es": "Ración de patatas", "ca": "Ració de patates", "en": "Fries"}, "price": "2,00"}
+    ]
+  },
+  {
+    "id": "carnes",
+    "name": {"es": "Carnes", "ca": "Carns", "en": "Meat"},
+    "items": [
+      {"name": {"es": "Presa ibérica (200 g)", "ca": "Presa ibèrica (200 g)", "en": "Iberian pork presa (200 g)"}, "price": "18,00"},
+      {"name": {"es": "Entrecot (300 g)", "ca": "Entrecot (300 g)", "en": "Sirloin steak (300 g)"}, "price": "18,00"},
+      {"name": {"es": "Chuletón (500 g)", "ca": "Xuletó (500 g)", "en": "Rib-eye steak (500 g)"}, "price": "25,00"},
+      {"name": {"es": "Escalop", "ca": "Escalop", "en": "Escalope"}, "price": "10,00"}
+    ]
+  },
+  {
+    "id": "postres",
+    "name": {"es": "Postres", "ca": "Postres", "en": "Desserts"},
+    "items": [
+      {"name": {"es": "De la casa", "ca": "De la casa", "en": "Homemade dessert"}, "price": "3,00"},
+      {"name": {"es": "Coulant", "ca": "Coulant", "en": "Chocolate coulant"}, "price": "3,50"}
+    ]
+  },
+  {
+    "id": "vinos",
+    "name": {"es": "Vinos", "ca": "Vins", "en": "Wines"},
+    "items": [
+      {"name": "Emilio Moro", "price": "27,00"},
+      {"name": "Rioja Vega", "price": "17,00"},
+      {"name": "Dalt Turó", "description": {"es": "Blanco, rosado y tinto.", "ca": "Blanc, rosat i negre.", "en": "White, rosé and red."}, "price": "17,00"},
+      {"name": "Entre Flores", "price": "15,00"},
+      {"name": "Mar de Ons", "price": "18,00"},
+      {"name": "Capitán Garfio", "price": "10,00"},
+      {
+        "name": {"es": "Copa de vino", "ca": "Copa de vi", "en": "Glass of wine"},
+        "description": {"es": "Tinto, blanco o rosado.", "ca": "Negre, blanc o rosat.", "en": "Red, white or rosé."},
+        "price": "2,50"
+      }
+    ]
+  },
+  {
+    "id": "volea",
+    "name": {"es": "Para compartir", "ca": "Per compartir", "en": "To share"},
+    "items": [
+      {
+        "name": "Volea",
+        "description": {"es": "Precio por persona. Mínimo 3 personas.", "ca": "Preu per persona. Mínim 3 persones.", "en": "Price per person. Minimum 3 people."},
+        "price": "20,00"
+      }
+    ]
+  }
+]

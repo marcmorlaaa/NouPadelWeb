@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="{{ ui.meta_description }}">
+    <meta name="theme-color" content="#0f241c">
+    <title>{{ site.name }} · {{ ui.title_tagline }}</title>
+    {% for code in languages %}<link rel="alternate" hreflang="{{ code }}" href="{{ lang_paths[code] }}">
+    {% endfor %}
+    <link rel="icon" type="image/png" href="{{ root }}static/images/logo-noupadel-transparent.png">
+    <link rel="preload" href="{{ root }}static/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{{ root }}static/css/public.css?v={{ asset_version }}">
+    <script src="{{ root }}static/js/public.js?v={{ asset_version }}" defer></script>
+</head>
+
+<body>
+    {#- Enlaces externos: flecha visible y aviso para lectores de pantalla. -#}
+    {% macro external() %}<span aria-hidden="true">↗</span><span class="sr-only"> {{ ui.new_tab }}</span>{% endmacro %}
+    {% macro price_table(items, caption='') %}
+    <table class="price-table">{% if caption %}<caption>{{ caption }}</caption>{% endif %}
+        <tbody>{% for item in items %}<tr>
+                <th scope="row">{{ item.name }}{% if item.detail %}<small>{{ item.detail }}</small>{% endif %}</th>
+                <td>{% if item.price %}{{ item.price|short_price }} €{% else %}<span class="price-pending">{{ ui.ask }}</span>{% endif %}</td>
+            </tr>{% endfor %}</tbody>
+    </table>
+    {% endmacro %}
+    {#- Celda del marcador: la cifra se encoge según lo larga que sea. -#}
+    {% macro score_cell(label, value, hours=false) %}<div{% if hours %} class="score-hours" data-open-label="{{ ui.open_today }}" data-today-label="{{ ui.today }}"{% endif %}>
+                            <dt>{{ label }}</dt>
+                            <dd class="score-{{ 'l' if value|length <= 5 else ('m' if value|length <= 14 else 's') }}">{% if hours and ' · ' in value %}{% for part in value.split(' · ') %}<span>{{ part }}</span>{% endfor %}{% else %}{{ value }}{% endif %}</dd>
+                        </div>{% endmacro %}
+    {% macro booking_button(class_name='button button-accent') %}{% if site.playtomic %}<a class="{{ class_name }}" href="{{ site.playtomic }}" target="_blank" rel="noopener noreferrer">{{ ui.book }} {{ external() }}</a>{% else %}<a class="{{ class_name }}" href="#contacto">{{ ui.book }}</a>{% endif %}{% endmacro %}
+    {% macro language_links() %}{% for code, name in languages.items() %}<a href="{{ lang_paths[code] }}" hreflang="{{ code }}" lang="{{ code }}" aria-label="{{ name }}"{% if code == lang %} aria-current="true"{% endif %}>{{ code|upper }}</a>{% endfor %}{% endmacro %}
+    {% set coach = site.classes_contact or {} %}
+    {% set coach_name = coach.name or site.name %}
+    {% set court_rate = site.rates[0]['items'][0] if site.rates and site.rates[0]['items'] else none %}
+    {% macro section_links() %}<a href="#tarifas">{{ ui.nav_rates }}</a><a href="#clases">{{ ui.nav_classes }}</a><a href="#carta">{{ ui.nav_menu }}</a><a href="#colaboradores">{{ ui.nav_collaborators }}</a><a href="#contacto">{{ ui.nav_contact }}</a>{% endmacro %}
+
+    <a class="skip-link" href="#contenido">{{ ui.skip }}</a>
+    <header class="site-header">
+        <a class="brand" href="#inicio" aria-label="{{ site.name }}, {{ ui.home }}">
+            <img class="brand-logo" src="{{ root }}static/images/logo-noupadel-transparent.png" width="44" height="44" alt="">
+            <span>{{ site.name }}<small>{{ ui.tagline }}</small></span>
+        </a>
+        <nav class="site-nav" id="site-nav" aria-label="{{ ui.nav_label }}">{{ section_links() }}</nav>
+        <nav class="lang-switch" aria-label="{{ ui.language }}">{{ language_links() }}</nav>
+        {{ booking_button('button button-small button-accent header-booking') }}
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden><span class="nav-toggle-bars" aria-hidden="true"></span>{{ ui.menu_button }}</button>
+    </header>
+
+    <main id="contenido">
+        <section class="hero wrap" id="inicio" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                {% if site.address %}<p class="eyebrow">{{ site.address.split(' · ')[0] }}{% if site.location %} · {{ site.location.split(',')[0] }}{% endif %}</p>{% endif %}
+                <h1 id="hero-title">{{ ui.hero_title_lead }} <span>{{ ui.hero_title_place }}</span></h1>
+                <p class="hero-description">{{ ui.hero_description }}</p>
+                <div class="hero-actions">{{ booking_button() }}<a class="button button-outline" href="#tarifas">{{ ui.see_rates }}</a></div>
+            </div>
+            <div class="hero-media">
+                {% if site.hero_image %}<img class="hero-photo" src="{{ root }}static/{{ site.hero_image }}" alt="{{ site.hero_image_alt }}" width="1200" height="900">{% endif %}
+                {#- El marcador resume el club; «Abierto hoy» lo rellena public.js con el horario del día. -#}
+                <div class="scoreboard">
+                    <p class="scoreboard-head"><span>{{ ui.scoreboard }}</span><span class="scoreboard-today" data-label="{{ ui.today }}" hidden></span></p>
+                    <dl class="scoreboard-grid">
+                        {% if site.schedule %}{{ score_cell(site.schedule[0].days, site.schedule[0].hours|replace(' – ', '–'), hours=true) }}{% endif %}
+                        {% if site.facts %}{{ score_cell(site.facts[0].label, site.facts[0].value) }}{% endif %}
+                        {% if court_rate and court_rate.price %}{{ score_cell(court_rate.name, court_rate.price|short_price ~ ' €') }}{% endif %}
+                        {% for fact in site.facts[1:] %}{{ score_cell(fact.label, fact.value) }}{% endfor %}
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        {% if announcements %}
+        <section class="news-section" id="anuncios" aria-labelledby="news-title">
+            <div class="wrap">
+                <h2 class="eyebrow eyebrow-accent" id="news-title">{{ ui.news_title }}<span> · {{ ui.news_intro }}</span></h2>
+                <div class="news-list">
+                    {% for item in announcements %}
+                    <article class="news-item"{% if item.last_day %} data-last-day="{{ item.last_day }}"{% endif %}>
+                        {% if item.event %}<time class="news-date" datetime="{{ item.event.iso }}"><span class="news-day">{{ item.event.day }}</span><span class="news-month">{{ item.event.month }}</span><span class="sr-only">{{ item.event.long }}</span></time>{% endif %}
+                        <div class="news-body">
+                            {% if item.event %}<p class="news-when" aria-hidden="true">{{ item.event.long }}</p>{% endif %}
+                            <h3>{{ item.title }}</h3>
+                            {% if item.body %}<p class="preserve-lines">{{ item.body }}</p>{% endif %}
+                        </div>
+                        {% if item.link %}<a class="button {{ 'button-light' if item.link_kind == 'signup' else 'button-outline' }}" href="{{ item.link }}" target="_blank" rel="noopener noreferrer">{{ ui.news_signup if item.link_kind == 'signup' else ui.news_info }} {{ external() }}</a>{% endif %}
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="section" id="tarifas" aria-labelledby="rates-title">
+            <div class="wrap">
+                <div class="section-head">
+                    <h2 id="rates-title">{{ ui.rates_title }}</h2>
+                    <p>{{ ui.rates_intro }}</p>
+                </div>
+                <div class="rates-layout">
+                    <article class="hours-card">
+                        <h3 class="board-head">{{ ui.hours_title }}</h3>
+                        {% if site.schedule %}<dl class="hours-list" data-today-label="{{ ui.today }}">{% for slot in site.schedule %}
+                            <div{% if slot.weekdays %} data-weekdays="{{ slot.weekdays|join(' ') }}"{% endif %}>
+                                <dt>{{ slot.days }}</dt>
+                                <dd>{% for part in slot.hours.split(' · ') %}<span>{{ part }}</span>{% endfor %}</dd>
+                            </div>{% endfor %}
+                        </dl>{% else %}<p class="hours-note">{{ ui.hours_pending }}</p>{% endif %}
+                        {% if site.schedule_note %}<p class="hours-note">{{ site.schedule_note }}</p>{% endif %}
+                    </article>
+                    <div class="rates-main">
+                        {% for group in site.rates %}{{ price_table(group['items'], group.name) }}{% else %}<p class="price-pending">{{ ui.rates_pending }}</p>{% endfor %}
+                        {% if site.tennis %}<article class="tennis-card">
+                            <div>
+                                <h3>{{ ui.tennis_title }}</h3>
+                                <p>{{ ui.tennis_text|replace('{name}', site.tennis.name) }} {{ ui.tennis_shoes }}</p>
+                            </div>
+                            <div class="tennis-links">
+                                {% if site.tennis.rent_url %}<a class="button button-outline button-small" href="{{ site.tennis.rent_url }}" target="_blank" rel="noopener noreferrer">{{ ui.tennis_rent }} {{ external() }}</a>{% endif %}
+                                {% if site.tennis.url %}<a class="text-link" href="{{ site.tennis.url }}" target="_blank" rel="noopener noreferrer">{{ ui.tennis_lessons }} {{ external() }}</a>{% endif %}
+                            </div>
+                        </article>{% endif %}
+                        <div class="rates-foot">{% if site.rates_note %}<p>{{ site.rates_note }}</p>{% endif %}{{ booking_button() }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-band" id="clases" aria-labelledby="classes-title">
+            <div class="wrap">
+                <div class="section-head section-head-split">
+                    <div>
+                        <h2 id="classes-title">{{ ui.classes_title }}</h2>
+                        <p>{{ ui.classes_intro }}</p>
+                    </div>
+                    {% if coach.number %}<a class="button" href="{{ coach.number|phone_href }}">{{ ui.classes_call|replace('{name}', coach_name) }} · {{ coach.number }}</a>
+                    {% else %}<a class="button" href="#contacto">{{ ui.classes_cta }}</a>{% endif %}
+                </div>
+                <ol class="class-steps">
+                    {% for step in ['step1', 'step2', 'step3'] %}<li>
+                        <p><strong>{{ ui[step ~ '_title']|replace('{name}', coach_name) }}</strong> {{ ui[step ~ '_text'] }}</p>
+                    </li>{% endfor %}
+                </ol>
+                {% if site.classes %}<h3 class="sr-only">{{ ui.classes_prices }}</h3>
+                <ul class="class-prices">
+                    {% for item in site.classes %}<li>
+                        {% if item.people %}<span class="class-people" aria-hidden="true">{{ item.people }}</span>{% endif %}
+                        <span class="class-name">{{ item.name }}</span>
+                        <span class="class-price">{% if item.price %}{{ item.price|short_price }} €{% else %}<span class="price-pending">{{ ui.ask }}</span>{% endif %}</span>
+                        {% if item.detail %}<span class="class-detail">{{ item.detail }}</span>{% endif %}
+                    </li>{% endfor %}
+                </ul>{% else %}<p class="price-pending">{{ ui.classes_pending }}</p>{% endif %}
+                {% if site.classes_note or (site.tennis and site.tennis.url) %}<p class="classes-foot">
+                    {% if site.classes_note %}{{ site.classes_note }}{% endif %}
+                    {% if site.tennis and site.tennis.url %}<span class="tennis-hint">{{ ui.tennis_hint }} <a href="{{ site.tennis.url }}" target="_blank" rel="noopener noreferrer">{{ site.tennis.name }} {{ external() }}</a></span>{% endif %}
+                </p>{% endif %}
+            </div>
+        </section>
+
+        <section class="section" id="carta" aria-labelledby="menu-title">
+            <div class="wrap">
+                <div class="section-head section-head-split">
+                    <div>
+                        <h2 id="menu-title">{{ ui.menu_title }}</h2>
+                        <p>{{ ui.menu_intro }}</p>
+                    </div>
+                    <a class="button button-outline" href="{{ root }}static/documents/carta.pdf" download="Carta-Nou-Padel-i-Tenis-Campos.pdf">{{ ui.menu_pdf }}</a>
+                </div>
+                <div class="menu-list">
+                    {% for category in menu %}
+                    {% set count = category['items']|length %}
+                    {% set min_price = category['items']|map(attribute='price')|map('replace', ',', '.')|map('float')|min %}
+                    <details class="menu-category">
+                        <summary>
+                            <h3>{{ category.name }}</h3>
+                            <span class="menu-summary">{{ count }} {{ ui.option if count == 1 else ui.options }} · {{ ui['from'] }} {{ '%.2f'|format(min_price)|replace('.', ',') }} €</span>
+                            <span class="menu-preview">{{ category['items'][:3]|map(attribute='name')|join(', ') }}{% if count > 3 %}…{% endif %}</span>
+                        </summary>
+                        {% if category.half %}<div class="portion-labels"><span><span>{{ ui.whole }}</span><span>½</span></span></div>{% endif %}
+                        <dl class="menu-items">
+                            {% for item in category['items'] %}<div class="menu-item{% if category.half %} has-half{% endif %}">
+                                <dt>{{ item.name }}{% if item.description %}<small>{{ item.description }}</small>{% endif %}</dt>
+                                <dd>{{ item.price }} €</dd>{% if category.half %}<dd>{% if item.half %}{{ item.half }} €{% else %}<span aria-label="{{ ui.half_unavailable }}">—</span>{% endif %}</dd>{% endif %}
+                            </div>{% endfor %}
+                        </dl>{% if category.note %}<p class="menu-note">{{ category.note }}</p>{% endif %}
+                    </details>
+                    {% endfor %}
+                </div>
+                <p class="small-note">{{ ui.allergens }}</p>
+            </div>
+        </section>
+
+        <section class="section section-flush" id="colaboradores" aria-labelledby="collaborators-title">
+            <div class="wrap">
+                <div class="section-head">
+                    <h2 class="h2-small" id="collaborators-title">{{ ui.collab_title }}</h2>
+                    <p>{{ ui.collab_intro }}</p>
+                </div>
+                <div class="collaborator-grid">
+                    {% for person in collaborators %}
+                    <article class="collaborator-card">
+                        {% if person.photo %}<img class="collaborator-photo" src="{{ root }}static/{{ person.photo }}" alt="{{ person.name }}" width="600" height="450" loading="lazy">{% else %}<div class="collaborator-placeholder" aria-hidden="true">{{ person.name[:1] }}</div>{% endif %}
+                        <div class="collaborator-body">
+                            <p class="collaborator-specialty">{{ person.specialty }}</p>
+                            <h3>{{ person.name }}</h3>
+                            <p class="preserve-lines">{{ person.description }}</p>
+                            {% if person.prices %}<div class="collaborator-prices">
+                                <h4>{{ ui.services }}</h4>
+                                <p class="preserve-lines">{{ person.prices }}</p>
+                            </div>{% endif %}
+                            {% if person.availability %}<p class="availability">{{ person.availability }}</p>{% endif %}
+                            <div class="collaborator-links">
+                                {% if person.phone %}<a href="{{ person.phone|phone_href }}">{{ person.phone }}</a>{% endif %}
+                                {% if person.email %}<a href="mailto:{{ person.email }}">{{ person.email }}</a>{% endif %}
+                                {% if person.website %}<a href="{{ person.website }}" target="_blank" rel="noopener noreferrer">{{ ui.website }} {{ external() }}</a>{% endif %}
+                                {% if person.instagram %}<a href="{{ person.instagram }}" target="_blank" rel="noopener noreferrer">Instagram {{ external() }}</a>{% endif %}
+                            </div>
+                        </div>
+                    </article>
+                    {% else %}
+                    <div class="collaborator-empty">
+                        <div>
+                            <h3>{{ ui.collab_empty_title }}</h3>
+                            <p>{{ ui.collab_empty_text }}</p>
+                        </div>
+                        <a class="button button-outline" href="#contacto">{{ ui.contact_cta }}</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-section" id="contacto" aria-labelledby="contact-title">
+            <div class="wrap contact-layout">
+                <div class="contact-intro">
+                    <h2 id="contact-title">{{ ui.contact_title }}</h2>
+                    <p>{{ ui.contact_intro }}</p>
+                    <address class="contact-address">{{ site.address or site.location }}</address>
+                    {% if site.maps %}<a class="button button-light" href="{{ site.maps }}" target="_blank" rel="noopener noreferrer">{{ ui.directions }} {{ external() }}</a>{% endif %}
+                </div>
+                <dl class="contact-list">
+                    {% for phone in site.phones %}<div class="contact-row">
+                        <dt>{{ phone.label }}</dt>
+                        <dd>{% if phone.number %}<a class="contact-phone" href="{{ phone.number|phone_href }}">{{ phone.number }}</a>{% else %}<span class="contact-pending">{{ ui.phone_pending }}</span>{% endif %}</dd>
+                    </div>{% endfor %}
+                    {% if coach.name %}<div class="contact-row">
+                        <dt>{{ ui.classes_phone }} · {{ coach.name }}</dt>
+                        <dd>{% if coach.number %}<a class="contact-phone" href="{{ coach.number|phone_href }}">{{ coach.number }}</a>{% else %}<span class="contact-pending">{{ ui.phone_pending }}</span>{% endif %}</dd>
+                    </div>{% endif %}
+                    {% for key, label, text in [('whatsapp', 'WhatsApp', ui.whatsapp_text), ('playtomic', ui.online_booking, 'Playtomic'), ('instagram', 'Instagram', ui.follow)] %}
+                    <div class="contact-row">
+                        <dt>{{ label }}</dt>
+                        <dd>{% if site[key] %}<a href="{{ site[key] }}" target="_blank" rel="noopener noreferrer">{{ text }} {{ external() }}</a>{% else %}<span class="contact-pending">{{ text }} · {{ ui.soon }}</span>{% endif %}</dd>
+                    </div>
+                    {% endfor %}
+                    <div class="contact-row">
+                        <dt>{{ ui.email }}</dt>
+                        <dd>{% if site.email %}<a href="mailto:{{ site.email }}">{{ site.email }}</a>{% else %}<span class="contact-pending">{{ ui.email_pending }}</span>{% endif %}</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer">
+        <div class="wrap footer-layout">
+            <p class="footer-brand"><strong>{{ site.name }}</strong><span>{{ site.address or site.location }}</span></p>
+            <nav class="footer-nav" aria-label="{{ ui.footer_nav }}">{{ section_links() }}</nav>
+            <nav class="lang-switch footer-lang" aria-label="{{ ui.language }}">{{ language_links() }}</nav>
+            {% if site.staff_url %}<a class="footer-staff" href="{{ site.staff_url }}">{{ ui.staff }}</a>{% endif %}
+        </div>
+    </footer>
+</body>
+
+</html>

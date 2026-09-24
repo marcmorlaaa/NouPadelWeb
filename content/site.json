@@ -1,0 +1,71 @@
+{
+  "name": "Nou Padel i Tenis Campos",
+  "location": "Campos, Mallorca",
+  "address": "Camí Vell de Ciutat, 31 · 07630 Campos, Mallorca",
+  "maps": "https://www.google.com/maps/search/?api=1&query=Cam%C3%AD+Vell+de+Ciutat+31%2C+07630+Campos%2C+Mallorca",
+  "phones": [{"label": {"es": "Recepción", "ca": "Recepció", "en": "Reception"}, "number": "613 09 64 75"}],
+  "classes_contact": {"name": "Antonia", "number": "635 50 31 32"},
+  "email": "noupadeliteniscampos@gmail.com",
+  "instagram": "https://www.instagram.com/noupadeliteniscampos/",
+  "playtomic": "https://playtomic.com/es/clubs/nou-padel-i-tenis-campos",
+  "whatsapp": "https://chat.whatsapp.com/Elf0PohEPHpEFpE9OdmGRi",
+  "domain": "",
+  "staff_url": "",
+  "hero_image": "",
+  "hero_image_alt": "",
+  "facts": [
+    {"value": "5", "label": {"es": "Pistas de pádel", "ca": "Pistes de pàdel", "en": "Padel courts"}},
+    {"value": {"es": "Tierra batida", "ca": "Terra batuda", "en": "Clay courts"}, "label": {"es": "Tenis", "ca": "Tennis", "en": "Tennis"}},
+    {
+      "value": {"es": "Material de pádel y bolas", "ca": "Material de pàdel i pilotes", "en": "Padel gear and balls"},
+      "label": {"es": "Tienda", "ca": "Botiga", "en": "Shop"}
+    }
+  ],
+  "schedule": [
+    {"days": {"es": "Lunes a viernes", "ca": "De dilluns a divendres", "en": "Monday to Friday"}, "weekdays": [1, 2, 3, 4, 5], "hours": "08:00 – 12:00 · 16:30 – 23:00"},
+    {"days": {"es": "Sábados", "ca": "Dissabtes", "en": "Saturdays"}, "weekdays": [6], "hours": "08:00 – 12:00 · 17:30 – 23:00"},
+    {"days": {"es": "Domingos", "ca": "Diumenges", "en": "Sundays"}, "weekdays": [7], "hours": {"es": "Cerrado", "ca": "Tancat", "en": "Closed"}}
+  ],
+  "rates": [
+    {
+      "name": {"es": "Pádel", "ca": "Pàdel", "en": "Padel"},
+      "items": [
+        {
+          "name": {"es": "Pista · 1 h", "ca": "Pista · 1 h", "en": "Court · 1 h"},
+          "detail": {"es": "Precio por pista", "ca": "Preu per pista", "en": "Per court"},
+          "price": "18,00"
+        },
+        {
+          "name": {"es": "Pista · 1 h 30 min", "ca": "Pista · 1 h 30 min", "en": "Court · 1 h 30 min"},
+          "detail": {"es": "Precio por pista", "ca": "Preu per pista", "en": "Per court"},
+          "price": "24,00"
+        },
+        {"name": {"es": "Alquiler de pala", "ca": "Lloguer de pala", "en": "Padel racket hire"}, "price": "5,00"},
+        {
+          "name": {"es": "Material de pádel y bolas", "ca": "Material de pàdel i pilotes", "en": "Padel gear and balls"},
+          "detail": {"es": "A la venta en el club", "ca": "A la venda al club", "en": "On sale at the club"},
+          "price": ""
+        }
+      ]
+    }
+  ],
+  "rates_note": {"es": "Precios con IVA incluido.", "ca": "Preus amb IVA inclòs.", "en": "Prices include VAT."},
+  "tennis": {
+    "name": "ProGame Tennis Academy",
+    "url": "https://progametennisacademy.com/es/tennis-campos",
+    "rent_url": "https://progametennisacademy.com/es/tennis-campos/alquiler-pistas"
+  },
+  "classes": [
+    {"people": 1, "name": {"es": "Individual", "ca": "Individual", "en": "One-to-one"}, "detail": {"es": "1 persona", "ca": "1 persona", "en": "1 person"}, "price": "35,00"},
+    {"people": 2, "name": {"es": "Parejas", "ca": "Parelles", "en": "Pairs"}, "detail": {"es": "Precio por persona", "ca": "Preu per persona", "en": "Per person"}, "price": "19,00"},
+    {"people": 3, "name": {"es": "Grupos de 3", "ca": "Grups de 3", "en": "Groups of 3"},
+      "detail": {"es": "Precio por persona", "ca": "Preu per persona", "en": "Per person"},
+      "price": "14,00"
+    },
+    {"people": 4, "name": {"es": "Grupos de 4", "ca": "Grups de 4", "en": "Groups of 4"},
+      "detail": {"es": "Precio por persona", "ca": "Preu per persona", "en": "Per person"},
+      "price": "12,00"
+    }
+  ],
+  "classes_note": {"es": "Clases infantiles: mismos precios.", "ca": "Classes infantils: mateixos preus.", "en": "Kids' lessons: same prices."}
+}

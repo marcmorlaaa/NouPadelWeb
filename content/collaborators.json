@@ -1,0 +1,28 @@
+[
+  {
+    "name": "ProGame Tennis Academy",
+    "specialty": "Academia de tenis",
+    "description": "Tenis para todas las edades y niveles en las pistas de tierra batida del club: escuela para niños de 4 a 16 años, grupos de adultos, competición y clases privadas. También gestionan el alquiler de las pistas de tenis.",
+    "prices": "Clases privadas, escuela, adultos y competición\nAlquiler de pistas de tenis por Playtomic",
+    "availability": "Academia, competición y torneos: Álvaro · +34 601 99 50 72",
+    "phone": "+34 601 92 44 39",
+    "email": "progametennisacademy@gmail.com",
+    "website": "https://progametennisacademy.com/es/tennis-campos",
+    "instagram": "https://www.instagram.com/progametennisacademy",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "name": "Tomas Training",
+    "specialty": "Entrenamiento personal",
+    "description": "Josep Tomàs, entrenador personal graduado en CAFYD y con máster en gestión deportiva. Entrenamientos personalizados en el club: individuales, en pareja o en grupos reducidos, y programación online.",
+    "prices": "Grupo reducido (máx. 6) · sesión 15 €\nEntrenamiento 1:1 · sesión 40 €\nEn pareja · sesión 50 €\nValoración inicial gratuita. Bonos y cuotas mensuales en su web.",
+    "availability": "",
+    "phone": "+34 629 15 07 44",
+    "email": "hello@tomastraining.com",
+    "website": "https://tomastraining.com/",
+    "instagram": "https://www.instagram.com/tomastraining_",
+    "photo": "",
+    "visible": true
+  }
+]
