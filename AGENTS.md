@@ -34,4 +34,5 @@ Web pública estática de **Nou Padel i Tenis Campos**, separada del panel de re
 ```
 
 `dist/` no se versiona: lo genera y publica `.github/workflows/pages.yml` (push a `main`, cron nocturno
-y ejecución manual).
+y ejecución manual). El despliegue a Pages solo se ejecuta si la variable del repo
+`PAGES_ENABLED` es `true`; de momento la web no está publicada.

@@ -54,7 +54,15 @@ Web en <http://localhost:8000>. Tests: `.venv\Scripts\python -m unittest discove
 
 ## Publicación
 
-GitHub Actions (`.github/workflows/pages.yml`) pasa los tests, genera `dist/` y lo publica en GitHub
+**Todavía no está publicada.** El workflow pasa los tests y genera `dist/` en cada push, pero solo
+despliega cuando la variable del repositorio `PAGES_ENABLED` vale `true`. Para publicarla:
+
+1. GitHub Pages en un repo privado requiere GitHub Pro; si no, haz el repo público.
+2. **Settings → Pages → Source: GitHub Actions**.
+3. **Settings → Secrets and variables → Actions → Variables**: crea `PAGES_ENABLED` = `true`.
+4. Lanza **Actions → Publicar web → Run workflow**.
+
+Una vez activado, GitHub Actions (`.github/workflows/pages.yml`) pasa los tests, genera `dist/` y lo publica en GitHub
 Pages en cada push a `main`, cada noche y a mano desde **Actions → Publicar web → Run workflow**.
 
 Dominio propio: pon el dominio en `"domain"` de `site.json` (se genera el fichero `CNAME`), configúralo

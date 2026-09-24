@@ -30,12 +30,15 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Generar dist/
         run: python build.py
-      - uses: actions/upload-pages-artifact@v3
+      # Mientras la variable del repo PAGES_ENABLED no valga «true», solo se pasan tests y se genera dist/.
+      - if: vars.PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
     needs: build
+    if: vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
