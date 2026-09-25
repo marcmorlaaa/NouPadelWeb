@@ -67,7 +67,7 @@ En esta fase se deja **`indexable: false`**, así que se puede subir a `main` si
 
 Primero se publica cerrada a buscadores para comprobar que todo funciona con el dominio.
 
-1. [x] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
+1. [ ] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
        perfil → **Settings → Pages → Add a domain** → `noupadeliteniscampos.com`. GitHub da un registro TXT
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
 2. [x] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
@@ -112,7 +112,7 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 
 ## Fase 5 · Alta en buscadores 🧑
 
-1. [x] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
+1. [ ] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
        (se verifica con otro registro TXT en el DNS).
 2. [ ] **Sitemaps** → enviar `https://noupadeliteniscampos.com/sitemap.xml`.
 3. [ ] **Inspección de URLs** → pedir la indexación de `/`, `/ca/` y `/en/`.
