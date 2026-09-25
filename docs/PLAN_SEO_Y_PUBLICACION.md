@@ -63,11 +63,11 @@ En esta fase se deja **`indexable: false`**, así que se puede subir a `main` si
 - [ ] Comprobar que nombre, dirección y teléfono son **exactamente iguales** en la web, en Google Business
       Profile, en Playtomic y en Instagram.
 
-## Fase 3 · Publicar en GitHub Pages (con `indexable: false`) 🧑
+## Fase 3 · Publicar en GitHub Pages (con `indexable: false`) 🧑 ✅
 
 Primero se publica cerrada a buscadores para comprobar que todo funciona con el dominio.
 
-1. [ ] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
+1. [x] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
        perfil → **Settings → Pages → Add a domain** → `noupadeliteniscampos.com`. GitHub da un registro TXT
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
 2. [x] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
@@ -75,7 +75,7 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 4. [x] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` (falta `staff_url` cuando exista).
        Ojo: publicando con GitHub Actions, GitHub **ignora** el fichero `CNAME`; el dominio se configura en el
        paso 6. El campo `domain` sirve para las URLs absolutas de la fase 1.
-5. [ ] Registros DNS en IONOS (**Dominios y SSL → el dominio → DNS**). Antes, borrar los registros `A`/`AAAA`
+5. [x] Registros DNS en IONOS (**Dominios y SSL → el dominio → DNS**). Antes, borrar los registros `A`/`AAAA`
        de `@` y el `CNAME`/`A` de `www` que IONOS crea por defecto (apuntan a su página de aparcamiento):
 
        | Tipo | Nombre | Valor |
@@ -90,12 +90,15 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
        | AAAA | `@` | `2606:50c0:8003::153` |
        | CNAME | `www` | `marcmorlaaa.github.io` |
 
+       En IONOS no hizo falta el CNAME: `www` hereda los registros `A`/`AAAA` de `@` y GitHub lo
+       redirige igual al dominio principal.
+
        Si el DNS está en Cloudflare, dejar estos registros **sin proxy** (nube gris), al menos hasta que
        GitHub emita el certificado.
-6. [ ] En el repositorio: **Settings → Pages → Custom domain** → `noupadeliteniscampos.com` → **Save**.
+6. [x] En el repositorio: **Settings → Pages → Custom domain** → `noupadeliteniscampos.com` → **Save**.
        Esperar a que el DNS check salga en verde (de minutos a unas horas).
-7. [ ] Marcar **Enforce HTTPS** cuando GitHub lo permita (tarda hasta ~1 h en emitir el certificado).
-8. [ ] Comprobar:
+7. [x] Marcar **Enforce HTTPS** cuando GitHub lo permita (tarda hasta ~1 h en emitir el certificado).
+8. [x] Comprobar:
    - `https://noupadeliteniscampos.com/`, `/ca/` y `/en/` cargan con estilos, fuentes y logo.
    - `http://` y `https://www.` redirigen a `https://noupadeliteniscampos.com/`.
    - La carta PDF se descarga, y funcionan el selector de idioma, Playtomic, WhatsApp y el mapa.
@@ -109,12 +112,12 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 
 ## Fase 5 · Alta en buscadores 🧑
 
-1. [ ] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
+1. [x] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
        (se verifica con otro registro TXT en el DNS).
 2. [ ] **Sitemaps** → enviar `https://noupadeliteniscampos.com/sitemap.xml`.
 3. [ ] **Inspección de URLs** → pedir la indexación de `/`, `/ca/` y `/en/`.
 4. [ ] **Bing Webmaster Tools** → «Importar desde Google Search Console» (también cubre DuckDuckGo y Ecosia).
-5. [ ] Validar:
+5. [x] Validar:
    - [Prueba de resultados enriquecidos](https://search.google.com/test/rich-results): el JSON-LD sin errores.
    - [PageSpeed Insights](https://pagespeed.web.dev/): móvil y escritorio en verde.
    - Vista previa de compartir: pegar el enlace en WhatsApp y comprobar la foto y el título.
