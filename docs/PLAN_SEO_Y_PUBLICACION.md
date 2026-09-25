@@ -107,17 +107,17 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 ## Fase 4 · Abrir a buscadores 🤖 ✅
 
 - [x] `site.json` → `"indexable": true`. Push a `main`.
-- [ ] Comprobar en producción: no hay `noindex` en el HTML, `robots.txt` apunta al sitemap y
+- [x] Comprobar en producción: no hay `noindex` en el HTML, `robots.txt` apunta al sitemap y
       `https://noupadeliteniscampos.com/sitemap.xml` se abre bien.
 
 ## Fase 5 · Alta en buscadores 🧑
 
 1. [x] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
        (se verifica con otro registro TXT en el DNS).
-2. [ ] **Sitemaps** → enviar `https://noupadeliteniscampos.com/sitemap.xml`.
-3. [ ] **Inspección de URLs** → pedir la indexación de `/`, `/ca/` y `/en/`.
+2. [x] **Sitemaps** → enviar `https://noupadeliteniscampos.com/sitemap.xml`.
+3. [x] **Inspección de URLs** → pedir la indexación de `/`, `/ca/` y `/en/`.
 4. [ ] **Bing Webmaster Tools** → «Importar desde Google Search Console» (también cubre DuckDuckGo y Ecosia).
-5. [x] Validar:
+5. [ ] Validar:
    - [Prueba de resultados enriquecidos](https://search.google.com/test/rich-results): el JSON-LD sin errores.
    - [PageSpeed Insights](https://pagespeed.web.dev/): móvil y escritorio en verde.
    - Vista previa de compartir: pegar el enlace en WhatsApp y comprobar la foto y el título.

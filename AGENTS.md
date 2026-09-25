@@ -20,7 +20,7 @@ Web pública estática de **Nou Padel i Tenis Campos**, separada del panel de re
 - SEO: `site.json` → `domain` activa `canonical`, `hreflang` (+ `x-default`), Open Graph, JSON-LD
   `SportsActivityLocation` y `sitemap.xml`, todos con URLs absolutas (la única excepción a la regla de
   rutas relativas, y solo en metadatos). `indexable: false` pone `noindex` y `Disallow: /`; `true` exige
-  `domain`. `validate_site()` valida dominio, coordenadas y `share_image`. Plan: `docs/PLAN_SEO_Y_PUBLICACION.md`.
+  `domain`. `validate_site()` valida dominio, coordenadas y `share_image`. Plan: `docs/PLAN_SEO_Y_PUBLICACION.md`; despliegue: `docs/DESPLIEGUE.md`.
 - Anuncios: se ocultan en el build los que tienen `visible: false` o cuyo último día
   (`visible_until` o `event_date`) ya pasó, con la fecha de Europe/Madrid. Además `public.js` retira en
   el navegador los que caducan entre builds (`data-last-day`), y el workflow regenera cada noche.

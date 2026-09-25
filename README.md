@@ -134,17 +134,6 @@ El workflow `.github/workflows/pages.yml` se ejecuta en cada push a `main`, cada
 GitHub Pages si la variable del repositorio `PAGES_ENABLED` vale `true` (ya lo vale: la web está publicada en
 <https://noupadeliteniscampos.com/>, con HTTPS de GitHub).
 
-Para publicarla cuando toque:
-
-1. GitHub Pages en un repositorio privado requiere GitHub Pro; si no, el repositorio tiene que ser público.
-2. **Settings → Pages → Source: GitHub Actions**.
-3. **Settings → Secrets and variables → Actions → Variables**: crea `PAGES_ENABLED` = `true`.
-4. Rellena `staff_url` (y `domain` si hay dominio propio) en `site.json` y haz push, o lanza el workflow
-   a mano.
-5. Con dominio propio, apunta el DNS a GitHub Pages y actívalo en **Settings → Pages**.
-
-La web no se indexa en buscadores mientras `site.json` tenga `"indexable": false`. Los pasos para abrirla
-están en [`docs/PLAN_SEO_Y_PUBLICACION.md`](docs/PLAN_SEO_Y_PUBLICACION.md).
-
-El paso a paso para publicarla con el dominio `noupadeliteniscampos.com` y abrirla a buscadores está en
-[docs/PLAN_SEO_Y_PUBLICACION.md](docs/PLAN_SEO_Y_PUBLICACION.md).
+El paso a paso completo (GitHub Pages, DNS en IONOS, HTTPS y Google Search Console), con los problemas
+que salieron y cómo se resolvieron, está en [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md). El plan de SEO,
+con lo hecho y lo pendiente, en [`docs/PLAN_SEO_Y_PUBLICACION.md`](docs/PLAN_SEO_Y_PUBLICACION.md).
