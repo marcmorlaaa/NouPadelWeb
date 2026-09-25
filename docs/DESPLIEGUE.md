@@ -1,188 +1,217 @@
-# Despliegue paso a paso: GitHub Pages + dominio en IONOS + Google
+# Cómo publicar la web
 
-Cómo se publicó `https://noupadeliteniscampos.com/` el 25 de septiembre de 2026, para poder repetirlo
-(otro dominio, otro repositorio o si hay que rehacerlo). El plan general de SEO está en
-[`PLAN_SEO_Y_PUBLICACION.md`](PLAN_SEO_Y_PUBLICACION.md).
+Estos son los pasos que seguí para poner la web en marcha con GitHub Pages y un dominio comprado en
+IONOS. Si algún día hay que rehacerlo, cambiar de dominio o montarlo en otra cuenta, debería bastar con
+seguirlos en orden.
 
-Resumen de piezas:
+Lo que necesitas antes de empezar:
 
-| Pieza | Dónde | Qué hace |
-|---|---|---|
-| Código y build | GitHub, repo `marcmorlaaa/NouPadelWeb` (público) | `.github/workflows/pages.yml` genera `dist/` y lo publica |
-| Hosting y HTTPS | GitHub Pages | Sirve la web y emite el certificado (gratis, se renueva solo) |
-| Dominio y DNS | IONOS | Apunta `noupadeliteniscampos.com` y `www` a GitHub Pages |
-| Buscadores | Google Search Console (+ Bing) | Verifica el dominio, recibe el sitemap e indexa |
+- Una cuenta de GitHub con este repositorio.
+- El dominio comprado (aquí, `noupadeliteniscampos.com` en IONOS) y acceso a su panel.
+- Una cuenta de Google para Search Console.
+- Python instalado para generar la web en tu ordenador y comprobar que todo va bien.
 
-Leyenda: 🧑 web de un proveedor · 💻 terminal o repositorio.
+Si usas otro dominio, cambia `noupadeliteniscampos.com` por el tuyo en todo lo que sigue.
 
----
+## Paso 1. Preparar el repositorio
 
-## 1. Preparar el repositorio 💻
+Abre `content/site.json` y pon el dominio, sin `https://` ni barras:
 
-1. En `content/site.json`:
-
-   ```json
-   "domain": "noupadeliteniscampos.com",
-   "indexable": false,
-   ```
-
-   `domain` va sin `https://` ni barras. Con `indexable: false` la web se publica con `noindex` y
-   `robots.txt` bloqueando todo: así se puede probar sin que Google la vea a medio hacer.
-2. Tests y build en local, y push a `main`:
-
-   ```bash
-   .venv/bin/python -m unittest discover -s tests
-   .venv/bin/python build.py
-   git push origin main
-   ```
-
-## 2. Activar GitHub Pages 💻
-
-GitHub Pages gratis solo publica desde repositorios **públicos** (en privado hace falta GitHub Pro).
-El repositorio no guarda secretos, pero al hacerlo público se ve todo el historial, incluido el email
-de los commits.
-
-Con `gh` (o lo mismo en la web del repositorio):
-
-```bash
-# Repositorio público                       (Settings → General → Danger Zone → Change visibility)
-gh repo edit --visibility public --accept-visibility-change-consequences
-# Pages publicado desde GitHub Actions       (Settings → Pages → Source: GitHub Actions)
-gh api -X POST repos/marcmorlaaa/NouPadelWeb/pages -f build_type=workflow
-# Variable que deja al workflow desplegar     (Settings → Secrets and variables → Actions → Variables)
-gh variable set PAGES_ENABLED --body true
-# Lanzar el workflow y esperar a que termine
-gh workflow run pages.yml --ref main
-gh run watch "$(gh run list --workflow pages.yml --limit 1 --json databaseId --jq '.[0].databaseId')"
+```json
+"domain": "noupadeliteniscampos.com",
+"indexable": false,
 ```
 
-La web queda en `https://marcmorlaaa.github.io/NouPadelWeb/`. Comprobar que cargan `/`, `/ca/`, `/en/`,
-los estilos y la carta PDF **antes** de tocar el dominio.
+Deja `indexable` en `false` de momento. Así la web se publica pero los buscadores no la indexan
+todavía, y puedes probarla con calma.
 
-## 3. Verificar el dominio en GitHub 🧑
-
-Evita que otra cuenta de GitHub pueda usar el dominio.
-
-1. GitHub → foto de perfil → **Settings → Pages → Add a domain** → `noupadeliteniscampos.com`.
-2. GitHub muestra «Create a TXT record» con un nombre y un valor («use this code for the value»).
-3. En IONOS: **Dominios & SSL** → `noupadeliteniscampos.com` → pestaña **DNS** → **Añadir registro** → **TXT**:
-   - **Nombre de host:** solo `_github-pages-challenge-marcmorlaaa`. **Sin** `.noupadeliteniscampos.com`:
-     IONOS lo añade solo y, si se escribe entero, queda duplicado y la verificación falla.
-   - **Valor:** el código de GitHub, tal cual.
-   - **TTL:** el de por defecto.
-4. Comprobar que ya se ve (en minutos):
-
-   ```bash
-   dig +short TXT _github-pages-challenge-marcmorlaaa.noupadeliteniscampos.com @8.8.8.8
-   ```
-
-5. Volver a GitHub y pulsar **Verify**.
-
-## 4. Apuntar el DNS de IONOS a GitHub Pages 🧑
-
-En la misma pestaña **DNS** de IONOS:
-
-1. **Borrar** el registro `A` (`217.160.0.95`) y el `AAAA` (`2001:8d8:…`) de `@`. Son la página de
-   aparcamiento de IONOS (la que responde «404 nginx»).
-2. **Crear** en `@`:
-
-   | Tipo | Host | Valor |
-   |---|---|---|
-   | A | `@` | `185.199.108.153` |
-   | A | `@` | `185.199.109.153` |
-   | A | `@` | `185.199.110.153` |
-   | A | `@` | `185.199.111.153` |
-   | AAAA | `@` | `2606:50c0:8000::153` |
-   | AAAA | `@` | `2606:50c0:8001::153` |
-   | AAAA | `@` | `2606:50c0:8002::153` |
-   | AAAA | `@` | `2606:50c0:8003::153` |
-
-3. **No crear el CNAME de `www`.** En IONOS, `www` hereda solo los registros de `@`; al intentar añadir el
-   CNAME avisa de que se desactivarán los registros de `www`. No hace falta: con los `A`/`AAAA` heredados,
-   GitHub ya redirige `www` al dominio principal.
-4. **No tocar** el TXT de SPF de IONOS (`v=spf1 include:_spf-eu.ionos.com ~all`) ni los TXT de verificación.
-5. **No contratar ni configurar ningún SSL en IONOS** (Dominios & SSL → Certificados). Ninguna de sus
-   opciones («mi página web en IONOS» o «mi servidor») sirve para GitHub Pages: el certificado lo pone GitHub.
-6. Comprobar en los servidores de IONOS y en uno público:
-
-   ```bash
-   dig +short A noupadeliteniscampos.com @ns1047.ui-dns.de
-   dig +short A www.noupadeliteniscampos.com @8.8.8.8
-   ```
-
-   Ambos deben devolver las cuatro IPs `185.199.10x.153`.
-
-## 5. Conectar el dominio y activar HTTPS 💻
-
-Solo cuando el DNS ya apunte a GitHub: en cuanto se pone el dominio, `github.io` redirige a él, y si aún
-no resuelve la web deja de verse.
+Comprueba que todo funciona en local y sube los cambios:
 
 ```bash
-# Settings → Pages → Custom domain → noupadeliteniscampos.com → Save
-gh api -X PUT repos/marcmorlaaa/NouPadelWeb/pages -f cname=noupadeliteniscampos.com
-# Esperar al certificado (minutos, hasta ~1 h): repetir hasta que diga "approved"
-gh api repos/marcmorlaaa/NouPadelWeb/pages --jq '.https_certificate.state'
-# Settings → Pages → Enforce HTTPS
-gh api -X PUT repos/marcmorlaaa/NouPadelWeb/pages -F https_enforced=true
+.venv/bin/python -m unittest discover -s tests
+.venv/bin/python build.py
+git push origin main
 ```
 
-Nota: publicando con GitHub Actions, GitHub ignora el fichero `CNAME` de `dist/`; el dominio se configura
-solo en este paso.
+## Paso 2. Activar GitHub Pages
 
-Comprobaciones:
+Con la cuenta gratuita de GitHub, Pages solo funciona si el repositorio es público. Antes de hacerlo
+público, asegúrate de que no hay contraseñas ni datos privados en ningún commit: al cambiarlo se ve
+todo el historial.
 
-- `https://noupadeliteniscampos.com/`, `/ca/` y `/en/` cargan con estilos, fuentes y logo.
-- `http://…`, `https://www.…` y `https://marcmorlaaa.github.io/NouPadelWeb/` redirigen a
+En la página del repositorio en GitHub:
+
+1. Ve a **Settings → General**, baja hasta el final y en **Change visibility** elige **Public**.
+2. Ve a **Settings → Pages** y en **Source** elige **GitHub Actions**.
+3. Ve a **Settings → Secrets and variables → Actions**, pestaña **Variables**, y crea una variable
+   llamada `PAGES_ENABLED` con el valor `true`. Sin ella el workflow pasa los tests pero no publica.
+4. Ve a **Actions**, elige **Publicar web** y pulsa **Run workflow**.
+
+Cuando termine (menos de un minuto), la web estará en `https://marcmorlaaa.github.io/NouPadelWeb/`.
+Ábrela y revisa que cargan las tres versiones (`/`, `/ca/` y `/en/`), los estilos y la carta en PDF.
+No sigas hasta que esto funcione.
+
+## Paso 3. Verificar el dominio en GitHub
+
+Esto sirve para que ninguna otra cuenta de GitHub pueda usar tu dominio.
+
+1. En GitHub, haz clic en tu foto de perfil y ve a **Settings → Pages** (los ajustes de tu cuenta, no
+   los del repositorio).
+2. Pulsa **Add a domain** y escribe `noupadeliteniscampos.com`.
+3. GitHub te da un registro TXT con un nombre y un valor. Déjalo abierto.
+4. En IONOS entra en **Dominios & SSL**, elige el dominio y abre la pestaña **DNS**. Pulsa **Añadir
+   registro** y elige **TXT**:
+   - En el nombre de host pon solo `_github-pages-challenge-marcmorlaaa`. IONOS añade el dominio
+     detrás por su cuenta; si lo escribes entero queda repetido y la verificación falla.
+   - En el valor pega el código de GitHub tal cual.
+5. Espera unos minutos, vuelve a GitHub y pulsa **Verify**.
+
+Si no se verifica a la primera, espera un poco más. Puedes comprobar si el registro ya se ve con:
+
+```bash
+dig +short TXT _github-pages-challenge-marcmorlaaa.noupadeliteniscampos.com @8.8.8.8
+```
+
+## Paso 4. Apuntar el dominio a GitHub
+
+Sigue en la pestaña **DNS** de IONOS.
+
+Primero borra el registro A que apunta a `217.160.0.95` y el AAAA que empieza por `2001:8d8:`. Son de
+la página de aparcamiento que IONOS pone por defecto (la que muestra «404 nginx»).
+
+Después crea estos registros, todos con el host `@`:
+
+```
+A      185.199.108.153
+A      185.199.109.153
+A      185.199.110.153
+A      185.199.111.153
+AAAA   2606:50c0:8000::153
+AAAA   2606:50c0:8001::153
+AAAA   2606:50c0:8002::153
+AAAA   2606:50c0:8003::153
+```
+
+Algunas cosas que conviene saber:
+
+- La guía de GitHub dice que crees un CNAME para `www`. En IONOS no hace falta: `www` ya usa los
+  mismos registros que el dominio principal, y si intentas crear el CNAME te avisa de que desactivará
+  otros registros. Déjalo como está; GitHub redirige `www` al dominio principal él solo.
+- No borres el registro TXT que empieza por `v=spf1`, es del correo de IONOS.
+- No contrates ni configures ningún certificado SSL en IONOS. El certificado lo pone GitHub gratis en
+  el paso siguiente.
+
+Para comprobar que los cambios ya están activos:
+
+```bash
+dig +short A noupadeliteniscampos.com @8.8.8.8
+```
+
+Tiene que devolver las cuatro direcciones que empiezan por `185.199.`. Si en tu ordenador la web sigue
+saliendo como antes, lee el apartado de problemas del final.
+
+## Paso 5. Conectar el dominio y activar HTTPS
+
+Haz esto solo cuando el paso anterior ya funcione. En cuanto pongas el dominio, la dirección de
+`github.io` redirige a él, y si el DNS aún no está listo la web deja de verse.
+
+1. En el repositorio, ve a **Settings → Pages**.
+2. En **Custom domain** escribe `noupadeliteniscampos.com` y pulsa **Save**.
+3. GitHub comprueba el DNS («DNS check in progress»). Si tarda, recarga la página de vez en cuando.
+4. Cuando salga en verde, marca **Enforce HTTPS**. Si la casilla está gris, GitHub todavía está
+   emitiendo el certificado; puede tardar hasta una hora.
+
+Un detalle: al publicar con GitHub Actions, GitHub no hace caso del fichero `CNAME` que genera el
+build. El dominio solo cuenta si lo pones en este paso.
+
+Comprueba que:
+
+- `https://noupadeliteniscampos.com/`, `/ca/` y `/en/` se ven bien.
+- `http://noupadeliteniscampos.com` y `https://www.noupadeliteniscampos.com` te llevan a
   `https://noupadeliteniscampos.com/`.
-- Se descarga la carta PDF y funcionan el selector de idioma, Playtomic, WhatsApp y el mapa.
+- La carta en PDF se descarga y funcionan el selector de idioma y los enlaces a Playtomic, WhatsApp y
+  el mapa.
 
-## 6. Abrir la web a buscadores 💻
+## Paso 6. Abrir la web a los buscadores
 
-1. En `content/site.json`: `"indexable": true`. Tests y push a `main`.
-2. Cuando termine el workflow, comprobar en producción:
+Cambia en `content/site.json`:
 
-   ```bash
-   curl -s https://noupadeliteniscampos.com/robots.txt         # Allow: / y la línea Sitemap
-   curl -s https://noupadeliteniscampos.com/ | grep -c noindex  # 0
-   ```
+```json
+"indexable": true,
+```
 
-## 7. Google Search Console 🧑
-
-1. https://search.google.com/search-console → **Añadir propiedad** → tipo **Dominio** →
-   `noupadeliteniscampos.com`. (No «Prefijo de la URL»: la de dominio cubre `www`, `http` y `https`.)
-2. En «Instrucciones para» Google detecta **1and1.com** (el nombre antiguo de IONOS) → **Iniciar
-   verificación** → entrar en IONOS y autorizar. Google crea el TXT solo. No cerrar la pestaña hasta que
-   diga «Propiedad verificada».
-   Si falla: elegir «Cualquier proveedor de DNS», copiar `google-site-verification=…` y crearlo como TXT
-   con host `@` en IONOS.
-3. Menú izquierdo → **Indexación → Sitemaps** → en «Añadir un sitemap» escribir `sitemap.xml` → **Enviar**.
-   Al principio puede salir «No se ha podido obtener»; en horas pasa a «Correcto» con 3 páginas.
-4. Barra de arriba (**Inspeccionar cualquier URL**) → pegar `https://noupadeliteniscampos.com/` →
-   «La URL no está en Google» (normal) → **Solicitar indexación**. Repetir con `/ca/` y `/en/`.
-5. Opcional: https://www.bing.com/webmasters → **Importar desde Google Search Console** (Bing,
-   DuckDuckGo y Ecosia).
-6. Para saber si ya está indexada: buscar en Google `site:noupadeliteniscampos.com` (días, a veces 1–2 semanas).
-
----
-
-## Problemas que salieron
-
-| Síntoma | Causa | Solución |
-|---|---|---|
-| El navegador dice que el dominio no tiene SSL | El DNS aún apuntaba a la página de aparcamiento de IONOS | Cambiar el DNS (paso 4); GitHub emite el certificado solo. No comprar SSL en IONOS |
-| «404 nginx» al abrir el dominio, en el PC y en el móvil por wifi | El DNS de la red local tenía guardada la IP antigua de IONOS (TTL 3600 s = hasta 1 h) | Esperar a que caduque, o probar con el móvil en datos. Comprobar con `dig noupadeliteniscampos.com` (la 2.ª columna es el tiempo que le queda) frente a `dig … @8.8.8.8` |
-| IONOS avisa al crear el CNAME de `www` de que desactivará registros | `www` ya hereda los `A`/`AAAA` de `@` | No crear el CNAME |
-| Search Console: «La URL no está en Google» | Google aún no la ha visitado | Solicitar indexación y esperar |
-
-Para probar la web saltándose la caché DNS local:
+Pasa los tests, haz push y espera a que termine el workflow. Luego comprueba que `robots.txt` ya
+permite la entrada y que las páginas no llevan `noindex`:
 
 ```bash
-curl -s --resolve noupadeliteniscampos.com:443:185.199.108.153 -o /dev/null -w '%{http_code}\n' https://noupadeliteniscampos.com/
+curl -s https://noupadeliteniscampos.com/robots.txt
+curl -s https://noupadeliteniscampos.com/ | grep -c noindex
 ```
+
+El primero debe mostrar `Allow: /` y la línea del sitemap. El segundo debe dar `0`.
+
+## Paso 7. Dar de alta la web en Google
+
+1. Entra en [Google Search Console](https://search.google.com/search-console) y pulsa **Añadir
+   propiedad**. Elige el tipo **Dominio** (no «Prefijo de la URL») y escribe
+   `noupadeliteniscampos.com`.
+2. Google detecta que el dominio está en IONOS (lo llama por su nombre antiguo, 1and1.com). Pulsa
+   **Iniciar verificación**, entra con tu cuenta de IONOS y autoriza. No cierres la pestaña hasta que
+   ponga «Propiedad verificada».
+
+   Si eso falla, elige «Cualquier proveedor de DNS», copia el texto `google-site-verification=…` y
+   créalo en IONOS como registro TXT con host `@`.
+3. En el menú de la izquierda ve a **Sitemaps**, escribe `sitemap.xml` y pulsa **Enviar**. Es normal
+   que al principio diga «No se ha podido obtener»; en unas horas cambia a «Correcto».
+4. En la barra de arriba pega `https://noupadeliteniscampos.com/`. Dirá que la URL no está en Google,
+   que es normal. Pulsa **Solicitar indexación**. Repite con `/ca/` y `/en/`.
+5. Si quieres aparecer también en Bing, DuckDuckGo y Ecosia, entra en
+   [Bing Webmaster Tools](https://www.bing.com/webmasters) e importa la web desde Search Console.
+
+Para saber si Google ya la tiene, busca `site:noupadeliteniscampos.com`. Puede tardar desde unos días
+hasta un par de semanas.
+
+## Paso 8. Enlazar el panel del staff (opcional)
+
+El botón **Acceso Staff** del pie y la dirección `noupadeliteniscampos.com/login` llevan al panel de
+reservas, que está alojado en otro servidor. Para que funcionen:
+
+1. En IONOS crea un registro A con el host `staff` que apunte a la IP del servidor del panel.
+2. En ese servidor, configura el subdominio `staff.noupadeliteniscampos.com` con su certificado HTTPS.
+   Esto se explica en la documentación del panel.
+3. En `content/site.json` pon `"staff_url": "https://staff.noupadeliteniscampos.com/login"` y haz push.
+
+GitHub Pages no permite redirecciones de servidor, así que el build genera una página `login/index.html`
+que redirige al panel en cuanto se abre.
+
+## Problemas que me encontré
+
+**El navegador dice que la web no es segura o que no tiene certificado.** El DNS todavía apuntaba a la
+página de aparcamiento de IONOS. Cuando el paso 4 está bien hecho, GitHub emite el certificado solo.
+No hace falta comprar nada en IONOS.
+
+**En mi ordenador sale «404 nginx», pero en el móvil con datos la web va bien.** Tu ordenador (o el
+router de casa) tiene guardada la dirección antigua y tarda hasta una hora en olvidarla. Puedes esperar
+o probar desde el móvil sin wifi. Para comprobarlo, compara lo que responde tu red con lo que responde
+Google:
+
+```bash
+dig +short noupadeliteniscampos.com
+dig +short noupadeliteniscampos.com @8.8.8.8
+```
+
+Si el segundo da las direcciones de GitHub y el primero no, es solo cuestión de esperar.
+
+**IONOS avisa de que va a desactivar registros al crear el CNAME de `www`.** No lo crees; no hace falta
+(ver paso 4).
+
+**Search Console dice «La URL no está en Google».** Es normal al principio. Solicita la indexación y
+espera.
 
 ## Mantenimiento
 
-- El certificado HTTPS lo renueva GitHub solo (el primero caduca el 24/12/2026 y se renueva antes).
-- El dominio se renueva en IONOS: tener activada la renovación automática y saber quién tiene la cuenta.
-- Cada push a `main` y cada noche (23:05 UTC) el workflow vuelve a publicar. Para pararlo sin borrar nada:
-  `gh variable set PAGES_ENABLED --body false`.
+- GitHub renueva el certificado HTTPS solo.
+- El dominio se renueva en IONOS. Ten activada la renovación automática y apunta quién tiene acceso a
+  esa cuenta.
+- La web se vuelve a publicar con cada push a `main` y cada noche. Si necesitas parar las
+  publicaciones sin borrar nada, cambia la variable `PAGES_ENABLED` a `false`.

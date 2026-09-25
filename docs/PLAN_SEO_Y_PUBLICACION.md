@@ -20,8 +20,8 @@ Leyenda: 🧑 lo hace una persona (cuentas, pagos, DNS) · 🤖 cambio en el rep
       del club (no de una persona que pueda irse) y que la renovación automática está activada.
 - [ ] 🧑 Opcional: registrar también `noupadeliteniscampos.es` y redirigirlo al `.com`.
 - [x] 🧑 El repositorio pasa a **público** (GitHub Pages gratis; no guarda secretos).
-- [ ] 🧑 Decidir la URL de «Acceso Staff» en producción. Propuesta: `https://gestion.noupadeliteniscampos.com/login`
-      (depende de dónde se despliegue CamposClubManager). Mientras no exista, `staff_url` se queda vacío.
+- [x] 🧑 URL de «Acceso Staff» en producción: `https://staff.noupadeliteniscampos.com/login`
+      (también accesible desde `https://noupadeliteniscampos.com/login`).
 - [ ] 🧑 Hacer fotos reales: pistas de pádel, pistas de tenis, cafetería y tienda. Se necesita al menos una
       horizontal buena para la portada y para compartir (se recorta a 1200×630).
 
@@ -72,7 +72,7 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
 2. [x] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
 3. [x] **Settings → Secrets and variables → Actions → Variables** → crear `PAGES_ENABLED` = `true`.
-4. [x] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` (falta `staff_url` cuando exista).
+4. [x] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` y `staff_url`.
        Ojo: publicando con GitHub Actions, GitHub **ignora** el fichero `CNAME`; el dominio se configura en el
        paso 6. El campo `domain` sirve para las URLs absolutas de la fase 1.
 5. [x] Registros DNS en IONOS (**Dominios y SSL → el dominio → DNS**). Antes, borrar los registros `A`/`AAAA`
