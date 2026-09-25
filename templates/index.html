@@ -63,7 +63,6 @@
     {% macro language_links() %}{% for code, name in languages.items() %}<a href="{{ lang_paths[code] }}" hreflang="{{ code }}" lang="{{ code }}" aria-label="{{ name }}"{% if code == lang %} aria-current="true"{% endif %}>{{ code|upper }}</a>{% endfor %}{% endmacro %}
     {% set coach = site.classes_contact or {} %}
     {% set coach_name = coach.name or site.name %}
-    {% set court_rate = site.rates[0]['items'][0] if site.rates and site.rates[0]['items'] else none %}
     {% macro section_links() %}<a href="#tarifas">{{ ui.nav_rates }}</a><a href="#clases">{{ ui.nav_classes }}</a><a href="#carta">{{ ui.nav_menu }}</a><a href="#colaboradores">{{ ui.nav_collaborators }}</a><a href="#contacto">{{ ui.nav_contact }}</a>{% endmacro %}
 
     <a class="skip-link" href="#contenido">{{ ui.skip }}</a>
@@ -93,9 +92,7 @@
                     <p class="scoreboard-head"><span>{{ ui.scoreboard }}</span><span class="scoreboard-today" data-label="{{ ui.today }}" hidden></span></p>
                     <dl class="scoreboard-grid">
                         {% if site.schedule %}{{ score_cell(site.schedule[0].days, site.schedule[0].hours|replace(' – ', '–'), hours=true) }}{% endif %}
-                        {% if site.facts %}{{ score_cell(site.facts[0].label, site.facts[0].value) }}{% endif %}
-                        {% if court_rate and court_rate.price %}{{ score_cell(court_rate.name, court_rate.price|short_price ~ ' €') }}{% endif %}
-                        {% for fact in site.facts[1:] %}{{ score_cell(fact.label, fact.value) }}{% endfor %}
+                        {% for fact in site.facts %}{{ score_cell(fact.label, fact.value) }}{% endfor %}
                     </dl>
                 </div>
             </div>
