@@ -131,8 +131,8 @@ Cada idioma debe tener todas las claves; un test lo comprueba.
 
 El workflow `.github/workflows/pages.yml` se ejecuta en cada push a `main`, cada noche y a mano
 (**Actions → Publicar web → Run workflow**): pasa los tests y genera `dist/`. **Solo publica** en
-GitHub Pages si la variable del repositorio `PAGES_ENABLED` vale `true`; ahora mismo no existe, así que
-no se publica nada.
+GitHub Pages si la variable del repositorio `PAGES_ENABLED` vale `true` (ya lo vale: la web está publicada en
+<https://marcmorlaaa.github.io/NouPadelWeb/>, a la espera de conectar el dominio).
 
 Para publicarla cuando toque:
 

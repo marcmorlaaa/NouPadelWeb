@@ -70,8 +70,8 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 1. [ ] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
        perfil → **Settings → Pages → Add a domain** → `noupadeliteniscampos.com`. GitHub da un registro TXT
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
-2. [ ] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
-3. [ ] **Settings → Secrets and variables → Actions → Variables** → crear `PAGES_ENABLED` = `true`.
+2. [x] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
+3. [x] **Settings → Secrets and variables → Actions → Variables** → crear `PAGES_ENABLED` = `true`.
 4. [x] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` (falta `staff_url` cuando exista).
        Ojo: publicando con GitHub Actions, GitHub **ignora** el fichero `CNAME`; el dominio se configura en el
        paso 6. El campo `domain` sirve para las URLs absolutas de la fase 1.
