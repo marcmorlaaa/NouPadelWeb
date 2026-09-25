@@ -30,6 +30,8 @@ Web pública estática de **Nou Padel i Tenis Campos**, separada del panel de re
   (solo castellano, necesita Chromium local).
 - «Acceso Staff» enlaza a `site.json` → `staff_url` (vacío = sin enlace). `build(staff_url=…)` /
   `--staff-url` lo sustituyen; `--dev` usa `LOCAL_STAFF_URL` (el panel local de CamposClubManager).
+  El mismo enlace genera `dist/login/index.html`, una redirección «meta refresh» (Pages no admite
+  redirecciones de servidor): `noupadeliteniscampos.com/login` lleva al panel en `staff.noupadeliteniscampos.com`.
 
 ## Comandos
 

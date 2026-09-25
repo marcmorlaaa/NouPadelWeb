@@ -114,12 +114,16 @@ class BuildTests(unittest.TestCase):
             self.assertIn('href="' + url + '"', html)
         self.assertIn('Acceso Staff', html)
         self.assertEqual((self.out / 'CNAME').read_text(), 'www.example.com\n')
+        login = (self.out / 'login/index.html').read_text(encoding='utf-8')
+        self.assertIn('<meta http-equiv="refresh" content="0; url=https://gestion.example.com/login">', login)
+        self.assertIn('noindex', login)
         site.update(maps='javascript:alert(1)', staff_url='')
         html = self.render(site=site)
         self.assertNotIn('javascript:alert(1)', html)
         # Un enlace no válido se descarta y desaparece el botón «Cómo llegar»; sin panel, no hay «Acceso Staff».
         self.assertNotIn('Cómo llegar', html)
         self.assertNotIn('Acceso Staff', html)
+        self.assertFalse((self.out / 'login').exists())
         self.assertNotIn('<iframe', html)
         self.assertNotIn('<form', html)
 
@@ -133,6 +137,7 @@ class BuildTests(unittest.TestCase):
             html = (self.out / page).read_text(encoding='utf-8')
             self.assertIn(f'<a class="footer-staff" href="{build.LOCAL_STAFF_URL}">', html)
             self.assertNotIn('gestion.example.com', html)
+        self.assertIn(build.LOCAL_STAFF_URL, (self.out / 'login/index.html').read_text(encoding='utf-8'))
         # Sin sustituto se usa el de site.json.
         self.assertIn('href="https://gestion.example.com/login"', self.render())
 

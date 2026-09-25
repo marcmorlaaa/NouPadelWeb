@@ -16,7 +16,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 ROOT = Path(__file__).resolve().parent
 CONTENT_DIR = ROOT / 'content'
@@ -286,6 +286,17 @@ def robots_txt(site):
     return f'User-agent: *\nAllow: /\n\nSitemap: https://{domain}/sitemap.xml\n'
 
 
+def login_redirect(url):
+    """Página /login/: GitHub Pages no permite redirecciones de servidor, así que redirige con
+    «meta refresh» al panel de reservas (y deja un enlace por si el navegador no lo sigue)."""
+    url = escape(url)
+    return ('<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="robots" content="noindex">\n'
+            f'<meta http-equiv="refresh" content="0; url={url}">\n'
+            '<title>Acceso Staff</title>\n</head>\n<body>\n'
+            f'<p><a href="{url}">Ir al panel de reservas</a></p>\n</body>\n</html>\n')
+
+
 def phone_href(value):
     return 'tel:' + re.sub(r'[^+0-9]', '', value)
 
@@ -346,6 +357,11 @@ def build(out_dir, on_date=None, staff_url=None):
     (out_dir / 'robots.txt').write_text(robots_txt(site), encoding='utf-8')
     # GitHub Pages: sin procesado Jekyll, y con dominio propio si site.json tiene «domain».
     (out_dir / '.nojekyll').write_text('', encoding='utf-8')
+    # /login/ lleva al panel (el mismo enlace que «Acceso Staff»); sin panel configurado no existe.
+    login_url = staff_url if staff_url is not None else site.get('staff_url', '')
+    if external_url(login_url):
+        (out_dir / 'login').mkdir()
+        (out_dir / 'login' / 'index.html').write_text(login_redirect(login_url), encoding='utf-8')
     domain = site.get('domain', '').strip()
     if domain:
         (out_dir / 'CNAME').write_text(domain + '\n', encoding='utf-8')
