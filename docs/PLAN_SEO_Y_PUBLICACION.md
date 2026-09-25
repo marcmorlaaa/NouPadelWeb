@@ -67,7 +67,7 @@ En esta fase se deja **`indexable: false`**, así que se puede subir a `main` si
 
 Primero se publica cerrada a buscadores para comprobar que todo funciona con el dominio.
 
-1. [ ] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
+1. [x] **Verificar el dominio en GitHub** (evita que otra persona lo secuestre):
        perfil → **Settings → Pages → Add a domain** → `noupadeliteniscampos.com`. GitHub da un registro TXT
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
 2. [x] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
