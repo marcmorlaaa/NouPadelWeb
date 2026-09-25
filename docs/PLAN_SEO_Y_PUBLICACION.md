@@ -112,7 +112,7 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
 
 ## Fase 5 · Alta en buscadores 🧑
 
-1. [ ] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
+1. [x] **Google Search Console** → añadir propiedad de tipo **Dominio** `noupadeliteniscampos.com`
        (se verifica con otro registro TXT en el DNS).
 2. [ ] **Sitemaps** → enviar `https://noupadeliteniscampos.com/sitemap.xml`.
 3. [ ] **Inspección de URLs** → pedir la indexación de `/`, `/ca/` y `/en/`.
