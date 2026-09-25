@@ -1,9 +1,11 @@
 import json
+import re
 import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
+from xml.etree import ElementTree
 
 import build
 from build import LANGUAGES, ContentError, load_data, localize
@@ -45,7 +47,14 @@ class BuildTests(unittest.TestCase):
         self.assertIn('href="static/documents/carta.pdf" download="Carta-Nou-Padel-i-Tenis-Campos.pdf"', html)
         # Sin rutas absolutas: la web funciona también bajo usuario.github.io/NouPadelWeb/.
         self.assertNotRegex(html, r'(href|src)="/(?!/)')
+        # Sin dominio no hay CNAME, sitemap ni URLs absolutas en los metadatos.
+        html = self.render(site={**load_data('site.json'), 'domain': '', 'indexable': False})
         self.assertFalse((self.out / 'CNAME').exists())
+        self.assertFalse((self.out / 'sitemap.xml').exists())
+        self.assertNotIn('rel="canonical"', html)
+        self.assertNotIn('application/ld+json', html)
+        self.assertNotIn('og:image', html)
+        self.assertIn('<link rel="alternate" hreflang="ca" href="ca/">', html)
         self.assertIn('Disallow: /', (self.out / 'robots.txt').read_text())
         self.assertIn('noindex', html)
 
@@ -242,9 +251,69 @@ class BuildTests(unittest.TestCase):
         self.assertIn('src="../static/images/logo-noupadel.jpg"', (self.out / 'en/index.html').read_text(encoding='utf-8'))
         self.assertIn('Aún no hay colaboradores', self.render(collaborators=[]))
 
+    def test_closed_to_search_engines_until_indexable(self):
+        site = {**load_data('site.json'), 'domain': 'noupadeliteniscampos.com', 'indexable': False}
+        html = self.render(site=site)
+        self.assertIn('<meta name="robots" content="noindex, nofollow">', html)
+        self.assertEqual((self.out / 'robots.txt').read_text(), 'User-agent: *\nDisallow: /\n')
+        # Con dominio ya van los metadatos absolutos, aunque los buscadores no entren todavía.
+        self.assertIn('<link rel="canonical" href="https://noupadeliteniscampos.com/">', html)
+
+    def test_indexable_site_metadata(self):
+        site = {**load_data('site.json'), 'domain': 'noupadeliteniscampos.com', 'indexable': True}
+        html = self.render(site=site)
+        base = 'https://noupadeliteniscampos.com/'
+        self.assertNotIn('noindex', html)
+        self.assertEqual((self.out / 'robots.txt').read_text(), f'User-agent: *\nAllow: /\n\nSitemap: {base}sitemap.xml\n')
+        for lang, path in [('es', ''), ('ca', 'ca/'), ('en', 'en/')]:
+            with self.subTest(lang=lang):
+                page = (self.out / path / 'index.html').read_text(encoding='utf-8')
+                self.assertIn(f'<link rel="canonical" href="{base}{path}">', page)
+                self.assertIn(f'<meta property="og:url" content="{base}{path}">', page)
+                self.assertIn(f'<meta property="og:locale" content="{build.OG_LOCALES[lang]}">', page)
+                for code, other in [('es', ''), ('ca', 'ca/'), ('en', 'en/'), ('x-default', '')]:
+                    self.assertIn(f'<link rel="alternate" hreflang="{code}" href="{base}{other}">', page)
+        self.assertIn(f'<meta property="og:image" content="{base}static/images/og.jpg">', html)
+        self.assertTrue((self.out / 'static/images/og.jpg').is_file())
+        # Sitemap: las tres páginas, cada una con sus alternativas de idioma.
+        sitemap = ElementTree.parse(self.out / 'sitemap.xml').getroot()
+        ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9', 'x': 'http://www.w3.org/1999/xhtml'}
+        self.assertEqual([loc.text for loc in sitemap.findall('s:url/s:loc', ns)], [base, base + 'ca/', base + 'en/'])
+        self.assertEqual(len(sitemap.findall('s:url/x:link', ns)), 12)
+        # JSON-LD válido y con los datos de la página.
+        data = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S).group(1))
+        self.assertEqual(data['@type'], 'SportsActivityLocation')
+        self.assertEqual(data['name'], 'Nou Padel i Tenis Campos')
+        self.assertEqual(data['telephone'], '+34 613 09 64 75')
+        self.assertEqual(data['address']['postalCode'], '07630')
+        self.assertEqual(data['address']['addressLocality'], 'Campos')
+        self.assertEqual(data['geo'], {'@type': 'GeoCoordinates', 'latitude': 39.437107, 'longitude': 3.004353})
+        self.assertIn('https://www.instagram.com/noupadeliteniscampos/', data['sameAs'])
+        hours = [(spec['dayOfWeek'], spec['opens'], spec['closes']) for spec in data['openingHoursSpecification']]
+        self.assertIn((['Saturday'], '17:30', '23:00'), hours)
+        self.assertEqual(len(hours), 4)  # dos tramos entre semana, dos el sábado; el domingo cierra
+        en = (self.out / 'en/index.html').read_text(encoding='utf-8')
+        self.assertIn(f'"url": "{base}en/"', en)
+
+    def test_structured_data_cannot_close_the_script(self):
+        site = {**load_data('site.json'), 'name': 'Club</script><script>alert(1)</script>'}
+        html = self.render(site=site)
+        self.assertNotIn('<script>alert(1)', html)
+        self.assertIn('\\u003c/script>', html)
+
+    def test_invalid_site_settings_stop_the_build(self):
+        for overrides in [{'domain': '', 'indexable': True}, {'domain': 'https://noupadeliteniscampos.com/'},
+                          {'domain': 'Noupadel.com'}, {'latitude': 'norte'}, {'longitude': 200},
+                          {'share_image': 'images/no-existe.jpg'}]:
+            with self.subTest(overrides=overrides):
+                with self.assertRaises(ContentError):
+                    self.render(site={**load_data('site.json'), **overrides})
+        self.assertFalse((self.out / 'index.html').exists())
+
     def test_content_files_are_valid(self):
         build.validate_announcements(load_data('announcements.json'))
         build.validate_collaborators(load_data('collaborators.json'))
+        build.validate_site(load_data('site.json'))
         for name in ['site.json', 'menu.json', 'i18n.json', 'collaborators.json', 'announcements.json']:
             json.loads((build.CONTENT_DIR / name).read_text(encoding='utf-8'))
 

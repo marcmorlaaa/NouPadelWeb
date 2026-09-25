@@ -4,12 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
+    {% if not seo.indexable %}<meta name="robots" content="noindex, nofollow">{% endif %}
+    {% set page_title = site.name ~ ' · ' ~ ui.title_tagline %}
     <meta name="description" content="{{ ui.meta_description }}">
     <meta name="theme-color" content="#0f241c">
-    <title>{{ site.name }} · {{ ui.title_tagline }}</title>
+    <title>{{ page_title }}</title>
+    {#- Google solo acepta canonical y hreflang absolutos: con dominio se usan esos; sin él, rutas relativas. -#}
+    {% if seo.canonical %}
+    <link rel="canonical" href="{{ seo.canonical }}">
+    {% for code, url in seo.urls.items() %}<link rel="alternate" hreflang="{{ code }}" href="{{ url }}">
+    {% endfor %}<link rel="alternate" hreflang="x-default" href="{{ seo.x_default }}">
+    {% else %}
     {% for code in languages %}<link rel="alternate" hreflang="{{ code }}" href="{{ lang_paths[code] }}">
     {% endfor %}
+    {% endif %}
+    {#- Vista previa al compartir el enlace (WhatsApp, Instagram, redes). -#}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site.name }}">
+    <meta property="og:title" content="{{ page_title }}">
+    <meta property="og:description" content="{{ ui.meta_description }}">
+    <meta property="og:locale" content="{{ seo.locale }}">
+    {% for locale in seo.alternate_locales %}<meta property="og:locale:alternate" content="{{ locale }}">
+    {% endfor %}
+    {% if seo.canonical %}<meta property="og:url" content="{{ seo.canonical }}">{% endif %}
+    {% if seo.image %}
+    <meta property="og:image" content="{{ seo.image }}">
+    <meta property="og:image:width" content="{{ seo.image_size[0] }}">
+    <meta property="og:image:height" content="{{ seo.image_size[1] }}">
+    <meta property="og:image:alt" content="{{ ui.share_image_alt }}">
+    <meta name="twitter:card" content="summary_large_image">
+    {% endif %}
+    {% if seo.json_ld %}<script type="application/ld+json">
+{{ seo.json_ld }}
+    </script>{% endif %}
     <link rel="icon" type="image/png" href="{{ root }}static/images/logo-noupadel-transparent.png">
     <link rel="preload" href="{{ root }}static/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ root }}static/css/public.css?v={{ asset_version }}">

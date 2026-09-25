@@ -16,41 +16,40 @@ Leyenda: 🧑 lo hace una persona (cuentas, pagos, DNS) · 🤖 cambio en el rep
 
 ## Fase 0 · Preparativos
 
-- [ ] 🧑 Comprobar que `noupadeliteniscampos.com` está libre y **registrarlo a nombre del club** (no de
-      una persona que pueda irse). Vale cualquier registrador (Cloudflare Registrar, Namecheap, DonDominio…).
-      Activar la renovación automática y la protección WHOIS.
+- [x] 🧑 Dominio `noupadeliteniscampos.com` comprado en **IONOS**. Pendiente: comprobar que está a nombre
+      del club (no de una persona que pueda irse) y que la renovación automática está activada.
 - [ ] 🧑 Opcional: registrar también `noupadeliteniscampos.es` y redirigirlo al `.com`.
-- [ ] 🧑 Decidir si el repositorio pasa a **público** (GitHub Pages gratis) o se paga GitHub Pro para
-      publicar desde un repositorio privado. El repositorio no guarda secretos, así que puede ser público.
+- [x] 🧑 El repositorio pasa a **público** (GitHub Pages gratis; no guarda secretos).
 - [ ] 🧑 Decidir la URL de «Acceso Staff» en producción. Propuesta: `https://gestion.noupadeliteniscampos.com/login`
       (depende de dónde se despliegue CamposClubManager). Mientras no exista, `staff_url` se queda vacío.
 - [ ] 🧑 Hacer fotos reales: pistas de pádel, pistas de tenis, cafetería y tienda. Se necesita al menos una
       horizontal buena para la portada y para compartir (se recorta a 1200×630).
 
-## Fase 1 · SEO técnico en el build 🤖
+## Fase 1 · SEO técnico en el build 🤖 ✅
 
 Todo se genera desde `site.json`, sin romper la regla de «solo URLs relativas» para enlaces internos:
 las URLs absolutas solo se usan en metadatos y solo si `domain` está relleno.
 
-- [ ] Nuevo campo `site.json` → `"indexable": false`. Controla a la vez:
+- [x] Nuevo campo `site.json` → `"indexable": false`. Controla a la vez:
   - `<meta name="robots">`: `noindex, nofollow` si es `false`, se quita si es `true`.
   - `robots.txt`: `Disallow: /` si es `false`; si es `true`, `Allow: /` + `Sitemap: https://{domain}/sitemap.xml`.
   - Si `indexable` es `true` y `domain` está vacío, el build falla con `ContentError`.
-- [ ] `<link rel="canonical">` absoluto en cada idioma.
-- [ ] `hreflang` con URLs absolutas (Google no acepta las relativas) y `x-default` apuntando al castellano.
+- [x] `<link rel="canonical">` absoluto en cada idioma.
+- [x] `hreflang` con URLs absolutas (Google no acepta las relativas) y `x-default` apuntando al castellano.
       Sin dominio se deja como ahora.
-- [ ] `sitemap.xml` con las 3 URLs y sus alternativas `xhtml:link` de idioma, y `lastmod` con la fecha del build.
-- [ ] Open Graph y Twitter Card: `og:title`, `og:description`, `og:url`, `og:image` (absoluta),
+- [x] `sitemap.xml` con las 3 URLs y sus alternativas `xhtml:link` de idioma. Sin `lastmod`: el build
+      nocturno lo cambiaría cada día aunque no cambie nada, y Google deja de fiarse de él.
+- [x] Open Graph y Twitter Card: `og:title`, `og:description`, `og:url`, `og:image` (absoluta),
       `og:locale` (`es_ES`, `ca_ES`, `en_GB`) y `og:locale:alternate`, `twitter:card=summary_large_image`.
-- [ ] Imagen para compartir: `static/images/og.jpg` (1200×630). Mientras no haya foto, se usa una
-      composición provisional con el logo.
-- [ ] JSON-LD `SportsActivityLocation` generado desde `site.json`: nombre, logo, dirección
-      (`PostalAddress`), `geo`, teléfono, email, `openingHoursSpecification` desde `schedule`, `priceRange`,
-      `sameAs` (Instagram y Playtomic) y `url`. Solo en castellano, o traducido por idioma.
-- [ ] Añadir `"latitude"` y `"longitude"` a `site.json` (sacadas de Google Maps, sobre la entrada del club).
-- [ ] Tests: `noindex` y `Disallow` con `indexable: false`; canonical, hreflang absoluto, sitemap y JSON-LD
+- [x] Imagen para compartir: `static/images/og.jpg` (1200×630), de momento una composición provisional
+      con el logo. Cuando haya foto, sustituir el fichero (o cambiar `share_image`).
+- [x] JSON-LD `SportsActivityLocation` generado desde `site.json` en cada idioma: nombre, logo, dirección
+      (`PostalAddress`), `geo`, teléfono, email, `openingHoursSpecification` desde `schedule`, `hasMap`,
+      `sameAs` (Instagram y Playtomic) y `url`. Sin `priceRange` (es opcional).
+- [x] Añadir `"latitude"` y `"longitude"` a `site.json` (sacadas de Google Maps, sobre la entrada del club).
+- [x] Tests: `noindex` y `Disallow` con `indexable: false`; canonical, hreflang absoluto, sitemap y JSON-LD
       válido con `indexable: true`; error si falta el dominio. Adaptar `tests/test_build.py:49-50`.
-- [ ] Actualizar README y AGENTS.md.
+- [x] Actualizar README y AGENTS.md.
 
 En esta fase se deja **`indexable: false`**, así que se puede subir a `main` sin que nada cambie en buscadores.
 
@@ -59,7 +58,7 @@ En esta fase se deja **`indexable: false`**, así que se puede subir a `main` si
 - [ ] Poner la foto de portada en `static/images/` y rellenar `hero_image` y `hero_image_alt` en `site.json`
       (alt descriptivo, por ejemplo «Pistas de pádel cubiertas de Nou Padel i Tenis Campos»).
 - [ ] Comprimir las imágenes (WebP/AVIF, menos de ~200 KB) y ponerles `width` y `height`.
-- [ ] Revisar `meta_description` y `hero_description` en los tres idiomas: que salgan «pádel», «Campos»,
+- [x] Revisar `meta_description` y `hero_description` en los tres idiomas: que salgan «pádel», «Campos»,
       «Mallorca» y, de forma natural, la zona cercana (Colònia de Sant Jordi, Ses Salines, Santanyí, Llucmajor).
 - [ ] Comprobar que nombre, dirección y teléfono son **exactamente iguales** en la web, en Google Business
       Profile, en Playtomic y en Instagram.
@@ -73,10 +72,11 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
        `_github-pages-challenge-marcmorlaaa` que hay que crear en el DNS del registrador y luego pulsar **Verify**.
 2. [ ] En el repositorio: **Settings → Pages → Source: GitHub Actions**.
 3. [ ] **Settings → Secrets and variables → Actions → Variables** → crear `PAGES_ENABLED` = `true`.
-4. [ ] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` (y `staff_url` si ya existe). Push a `main`.
+4. [x] 🤖 En `site.json`: `"domain": "noupadeliteniscampos.com"` (falta `staff_url` cuando exista).
        Ojo: publicando con GitHub Actions, GitHub **ignora** el fichero `CNAME`; el dominio se configura en el
        paso 6. El campo `domain` sirve para las URLs absolutas de la fase 1.
-5. [ ] Registros DNS en el registrador:
+5. [ ] Registros DNS en IONOS (**Dominios y SSL → el dominio → DNS**). Antes, borrar los registros `A`/`AAAA`
+       de `@` y el `CNAME`/`A` de `www` que IONOS crea por defecto (apuntan a su página de aparcamiento):
 
        | Tipo | Nombre | Valor |
        |---|---|---|

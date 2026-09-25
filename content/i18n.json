@@ -1,7 +1,8 @@
 {
   "es": {
-    "meta_description": "Pistas de pádel, clases, tienda de material y cafetería en Campos, Mallorca. Tenis en tierra batida con ProGame Tennis Academy.",
-    "title_tagline": "Pádel y tenis en Campos",
+    "meta_description": "Club de pádel en Campos (Mallorca), cerca de Ses Salines y Santanyí: 5 pistas, clases para adultos y niños, tienda y cafetería. Tenis en tierra batida.",
+    "title_tagline": "Pádel y tenis en Campos, Mallorca",
+    "share_image_alt": "Logo de Nou Padel i Tenis Campos: pádel y tenis en Campos, Mallorca",
     "skip": "Saltar al contenido",
     "home": "inicio",
     "tagline": "Pádel y tenis · Campos",
@@ -81,8 +82,9 @@
     "news_info": "Más información"
   },
   "ca": {
-    "meta_description": "Pistes de pàdel, classes, botiga de material i cafeteria a Campos, Mallorca. Tennis en terra batuda amb ProGame Tennis Academy.",
-    "title_tagline": "Pàdel i tennis a Campos",
+    "meta_description": "Club de pàdel a Campos (Mallorca), a prop de ses Salines i Santanyí: 5 pistes, classes per a adults i infants, botiga i cafeteria. Tennis en terra batuda.",
+    "title_tagline": "Pàdel i tennis a Campos, Mallorca",
+    "share_image_alt": "Logo de Nou Padel i Tenis Campos: pàdel i tennis a Campos, Mallorca",
     "skip": "Salta al contingut",
     "home": "inici",
     "tagline": "Pàdel i tennis · Campos",
@@ -162,8 +164,9 @@
     "news_info": "Més informació"
   },
   "en": {
-    "meta_description": "Padel courts, lessons, a padel shop and a café in Campos, Mallorca. Tennis on clay with ProGame Tennis Academy.",
-    "title_tagline": "Padel and tennis in Campos",
+    "meta_description": "Padel club in Campos, Mallorca, near Ses Salines and Santanyí: 5 courts, lessons for adults and kids, a shop and a café. Tennis on clay courts.",
+    "title_tagline": "Padel and tennis in Campos, Mallorca",
+    "share_image_alt": "Nou Padel i Tenis Campos logo: padel and tennis in Campos, Mallorca",
     "skip": "Skip to content",
     "home": "home",
     "tagline": "Padel & tennis · Campos",

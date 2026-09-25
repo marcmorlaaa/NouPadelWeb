@@ -106,7 +106,13 @@ se muestra la inicial del nombre.
 - `playtomic`: si está, «Reservar pista» abre Playtomic; si no, baja a contacto.
 - `staff_url`: enlace de **Acceso Staff** en producción (por ejemplo `https://gestion.tu-dominio/login`).
   Vacío, el enlace no aparece. En local lo sustituye `--dev`.
-- `domain`: dominio propio para GitHub Pages; genera el fichero `CNAME`.
+- `domain`: dominio propio (`noupadeliteniscampos.com`, sin `https://` ni barras). Genera `CNAME` y
+  `sitemap.xml`, y activa las URLs absolutas de los metadatos: `canonical`, `hreflang` con `x-default`,
+  Open Graph y el JSON-LD del club. Los enlaces internos siguen siendo relativos.
+- `indexable`: `false` deja la web cerrada a buscadores (`noindex` en cada página y `Disallow: /` en
+  `robots.txt`); `true` quita el `noindex` y `robots.txt` apunta al sitemap. Requiere `domain`.
+- `latitude` y `longitude`: coordenadas de la entrada del club para el JSON-LD.
+- `share_image`: imagen al compartir el enlace, relativa a `static/`, de 1200×630 (`images/og.jpg`).
 
 ### Carta (`menu.json` y PDF)
 
@@ -137,7 +143,8 @@ Para publicarla cuando toque:
    a mano.
 5. Con dominio propio, apunta el DNS a GitHub Pages y actívalo en **Settings → Pages**.
 
-La web no se indexa en buscadores (`noindex` y `robots.txt`), igual que cuando estaba dentro del panel.
+La web no se indexa en buscadores mientras `site.json` tenga `"indexable": false`. Los pasos para abrirla
+están en [`docs/PLAN_SEO_Y_PUBLICACION.md`](docs/PLAN_SEO_Y_PUBLICACION.md).
 
 El paso a paso para publicarla con el dominio `noupadeliteniscampos.com` y abrirla a buscadores está en
 [docs/PLAN_SEO_Y_PUBLICACION.md](docs/PLAN_SEO_Y_PUBLICACION.md).

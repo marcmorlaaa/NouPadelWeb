@@ -17,6 +17,10 @@ Web pública estática de **Nou Padel i Tenis Campos**, separada del panel de re
 - `localize()` convierte `{"es", "ca", "en"}` en el texto del idioma con reserva en castellano; se
   aplica a `site.json`, `menu.json`, `collaborators.json` y a título/cuerpo de los anuncios.
   `i18n.json` debe tener todas las claves en todos los idiomas (test).
+- SEO: `site.json` → `domain` activa `canonical`, `hreflang` (+ `x-default`), Open Graph, JSON-LD
+  `SportsActivityLocation` y `sitemap.xml`, todos con URLs absolutas (la única excepción a la regla de
+  rutas relativas, y solo en metadatos). `indexable: false` pone `noindex` y `Disallow: /`; `true` exige
+  `domain`. `validate_site()` valida dominio, coordenadas y `share_image`. Plan: `docs/PLAN_SEO_Y_PUBLICACION.md`.
 - Anuncios: se ocultan en el build los que tienen `visible: false` o cuyo último día
   (`visible_until` o `event_date`) ya pasó, con la fecha de Europe/Madrid. Además `public.js` retira en
   el navegador los que caducan entre builds (`data-last-day`), y el workflow regenera cada noche.

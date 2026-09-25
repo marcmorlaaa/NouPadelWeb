@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
 ROOT = Path(__file__).resolve().parent
 CONTENT_DIR = ROOT / 'content'
@@ -29,6 +30,10 @@ ASSET_VERSION = datetime.now().strftime('%Y%m%d%H%M')
 # Panel de reservas en desarrollo: docker-compose.local.yml de CamposClubManager lo sirve en el puerto 80.
 LOCAL_STAFF_URL = 'http://localhost/login'
 DEV_PORT = 8000
+# Metadatos para buscadores y redes sociales (ver seo_context).
+OG_LOCALES = {'es': 'es_ES', 'ca': 'ca_ES', 'en': 'en_GB'}
+SHARE_IMAGE_SIZE = (1200, 630)
+SCHEMA_DAYS = ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
 
 
 class ContentError(ValueError):
@@ -187,6 +192,100 @@ def visible_collaborators(rows, lang):
     return [localize(row, lang) for row in rows if row.get('visible', True)]
 
 
+def validate_site(site):
+    """Datos de site.json que usan los metadatos de buscadores: dominio, indexación, coordenadas e imagen."""
+    domain = site.get('domain', '').strip()
+    if domain and not re.fullmatch(r'(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}', domain):
+        raise ContentError(f'site.json: «domain» debe ser solo el dominio en minúsculas, sin https:// ni barras («{domain}»).')
+    if site.get('indexable') and not domain:
+        raise ContentError('site.json: con «indexable»: true hace falta «domain» (las URLs de buscadores son absolutas).')
+    for key, limit in (('latitude', 90), ('longitude', 180)):
+        value = site.get(key)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float)) or abs(value) > limit):
+            raise ContentError(f'site.json: «{key}» debe ser un número entre -{limit} y {limit}.')
+    image = site.get('share_image', '')
+    if image and (not (STATIC_DIR / image).is_file() or '..' in Path(image).parts):
+        raise ContentError(f'site.json: no existe la imagen para compartir static/{image}.')
+
+
+def page_urls(domain):
+    """URL absoluta de cada idioma con dominio propio; sin dominio no hay URLs absolutas."""
+    if not domain:
+        return {}
+    return {code: f'https://{domain}/' + ('' if code == DEFAULT_LANGUAGE else code + '/') for code in LANGUAGES}
+
+
+def opening_hours(schedule):
+    """«08:00 – 12:00 · 16:30 – 23:00» → una franja de schema.org por tramo; «Cerrado» no genera ninguna."""
+    specs = []
+    for row in schedule:
+        days = [SCHEMA_DAYS[day - 1] for day in row.get('weekdays', []) if 1 <= day <= 7]
+        for opens, closes in re.findall(r'(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})', str(row.get('hours', ''))):
+            if days:
+                specs.append({'@type': 'OpeningHoursSpecification', 'dayOfWeek': days, 'opens': opens, 'closes': closes})
+    return specs
+
+
+def structured_data(site, ui, urls, lang):
+    """JSON-LD del club para Google: los mismos datos que se ven en la página."""
+    street, _, rest = site.get('address', '').partition(' · ')
+    town = re.match(r'(\d{5})\s+([^,]+)', rest.strip())
+    phones = [phone['number'] for phone in site.get('phones', []) if phone.get('number')]
+    base = urls[DEFAULT_LANGUAGE]
+    data = {
+        '@context': 'https://schema.org', '@type': 'SportsActivityLocation', '@id': base + '#club',
+        'name': site['name'], 'description': ui['meta_description'], 'url': urls[lang],
+        'logo': base + 'static/images/logo-noupadel-transparent.png',
+        'image': base + 'static/' + site['share_image'] if site.get('share_image') else '',
+        # Los teléfonos del club son españoles: se publican con prefijo internacional.
+        'telephone': (phones[0] if phones[0].startswith('+') else '+34 ' + phones[0]) if phones else '',
+        'email': site.get('email', ''),
+        # Región y país fijos: el club está en Mallorca.
+        'address': {'@type': 'PostalAddress', 'streetAddress': street.strip(),
+                    'postalCode': town.group(1) if town else '', 'addressLocality': town.group(2).strip() if town else '',
+                    'addressRegion': 'Illes Balears', 'addressCountry': 'ES'} if street else '',
+        'geo': {'@type': 'GeoCoordinates', 'latitude': site['latitude'], 'longitude': site['longitude']}
+        if site.get('latitude') is not None and site.get('longitude') is not None else '',
+        'hasMap': site.get('maps', ''),
+        'openingHoursSpecification': opening_hours(site.get('schedule', [])),
+        'sameAs': [site[key] for key in ('instagram', 'playtomic') if site.get(key)],
+    }
+    data = {key: value for key, value in data.items() if value}
+    # «<» escapado: el JSON va dentro de <script> y ningún texto puede cerrarlo.
+    return Markup(json.dumps(data, ensure_ascii=False, indent=2).replace('<', '\\u003c'))
+
+
+def seo_context(site, ui, lang):
+    """canonical, hreflang, Open Graph y JSON-LD. Sin «domain» solo queda lo que no necesita URLs absolutas."""
+    urls = page_urls(site.get('domain', '').strip())
+    image = urls[DEFAULT_LANGUAGE] + 'static/' + site['share_image'] if urls and site.get('share_image') else ''
+    return {
+        'indexable': bool(site.get('indexable')), 'urls': urls, 'canonical': urls.get(lang, ''),
+        'x_default': urls.get(DEFAULT_LANGUAGE, ''), 'image': image, 'image_size': SHARE_IMAGE_SIZE,
+        'locale': OG_LOCALES[lang], 'alternate_locales': [OG_LOCALES[code] for code in LANGUAGES if code != lang],
+        'json_ld': structured_data(site, ui, urls, lang) if urls else '',
+    }
+
+
+def sitemap(domain):
+    """Las tres páginas con sus versiones en otros idiomas. Sin «lastmod»: el build nocturno lo cambiaría
+    cada día aunque nada cambie, y Google deja de fiarse de él."""
+    urls = page_urls(domain)
+    links = ''.join(f'    <xhtml:link rel="alternate" hreflang="{code}" href="{url}"/>\n' for code, url in urls.items())
+    links += f'    <xhtml:link rel="alternate" hreflang="x-default" href="{urls[DEFAULT_LANGUAGE]}"/>\n'
+    entries = ''.join(f'  <url>\n    <loc>{url}</loc>\n{links}  </url>\n' for url in urls.values())
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+            f'{entries}</urlset>\n')
+
+
+def robots_txt(site):
+    domain = site.get('domain', '').strip()
+    if not site.get('indexable'):
+        return 'User-agent: *\nDisallow: /\n'
+    return f'User-agent: *\nAllow: /\n\nSitemap: https://{domain}/sitemap.xml\n'
+
+
 def phone_href(value):
     return 'tel:' + re.sub(r'[^+0-9]', '', value)
 
@@ -215,11 +314,13 @@ def page_context(lang, on_date, staff_url=None):
             site['tennis'][key] = ''
     # «root» lleva de la página del idioma a la raíz de la web: '' en /, '../' en /ca/ y /en/.
     root = '' if lang == DEFAULT_LANGUAGE else '../'
+    ui = interface_texts(lang)
     return {
         'site': site, 'menu': localize(load_data('menu.json'), lang),
         'collaborators': visible_collaborators(load_data('collaborators.json'), lang),
         'announcements': visible_announcements(load_data('announcements.json'), lang, on_date),
-        'lang': lang, 'languages': LANGUAGES, 'ui': interface_texts(lang), 'root': root,
+        'lang': lang, 'languages': LANGUAGES, 'ui': ui, 'root': root,
+        'seo': seo_context(site, ui, lang),
         'lang_paths': {code: (root + ('' if code == DEFAULT_LANGUAGE else code + '/')) or './' for code in LANGUAGES},
         'asset_version': ASSET_VERSION,
     }
@@ -231,6 +332,8 @@ def build(out_dir, on_date=None, staff_url=None):
     on_date = on_date or today()
     validate_announcements(load_data('announcements.json'))
     validate_collaborators(load_data('collaborators.json'))
+    site = load_data('site.json')
+    validate_site(site)
     template = environment().get_template('index.html')
     if out_dir.exists():
         shutil.rmtree(out_dir)
@@ -239,13 +342,14 @@ def build(out_dir, on_date=None, staff_url=None):
         page_dir = out_dir if lang == DEFAULT_LANGUAGE else out_dir / lang
         page_dir.mkdir(parents=True, exist_ok=True)
         (page_dir / 'index.html').write_text(template.render(page_context(lang, on_date, staff_url)), encoding='utf-8')
-    # La web sigue sin indexarse en buscadores, como hasta ahora (también lleva «noindex»).
-    (out_dir / 'robots.txt').write_text('User-agent: *\nDisallow: /\n', encoding='utf-8')
+    # Con «indexable»: false la web queda cerrada a buscadores (robots.txt y «noindex» en cada página).
+    (out_dir / 'robots.txt').write_text(robots_txt(site), encoding='utf-8')
     # GitHub Pages: sin procesado Jekyll, y con dominio propio si site.json tiene «domain».
     (out_dir / '.nojekyll').write_text('', encoding='utf-8')
-    domain = load_data('site.json').get('domain', '').strip()
+    domain = site.get('domain', '').strip()
     if domain:
         (out_dir / 'CNAME').write_text(domain + '\n', encoding='utf-8')
+        (out_dir / 'sitemap.xml').write_text(sitemap(domain), encoding='utf-8')
     return out_dir
 
 
