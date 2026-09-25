@@ -104,9 +104,9 @@ Primero se publica cerrada a buscadores para comprobar que todo funciona con el 
    - La carta PDF se descarga, y funcionan el selector de idioma, Playtomic, WhatsApp y el mapa.
    - En Actions, la ejecución nocturna también publica.
 
-## Fase 4 · Abrir a buscadores 🤖
+## Fase 4 · Abrir a buscadores 🤖 ✅
 
-- [ ] `site.json` → `"indexable": true`. Push a `main`.
+- [x] `site.json` → `"indexable": true`. Push a `main`.
 - [ ] Comprobar en producción: no hay `noindex` en el HTML, `robots.txt` apunta al sitemap y
       `https://noupadeliteniscampos.com/sitemap.xml` se abre bien.
 

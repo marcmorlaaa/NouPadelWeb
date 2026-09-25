@@ -10,7 +10,7 @@
   "playtomic": "https://playtomic.com/es/clubs/nou-padel-i-tenis-campos",
   "whatsapp": "https://chat.whatsapp.com/Elf0PohEPHpEFpE9OdmGRi",
   "domain": "noupadeliteniscampos.com",
-  "indexable": false,
+  "indexable": true,
   "latitude": 39.437107,
   "longitude": 3.004353,
   "share_image": "images/og.jpg",
